@@ -119,6 +119,19 @@
 	stored_mmi.icon_state = "posibrain-occupied"
 	icon_state = stored_mmi.icon_state
 
+	stored_mmi.brainmob.languages = owner.language
+
+/obj/item/organ/internal/mmi_holder/posibrain/slimecore
+	name = "LCL gel-based internal control core"
+	brain_type = /obj/item/device/mmi/digital/posibrain/slimecore
+	robotic = ORGAN_ROBOT
+
+/obj/item/organ/internal/mmi_holder/posibrain/slimecore/update_from_mmi()
+	..()
+	stored_mmi.icon = "icons/obj/slimecontrolcore.dmi"
+	stored_mmi.icon_state = "slimecontrolcore-occupied"
+	icon = stored_mmi.icon
+	icon-state = stored_mmi.icon_state
 	stored_mmi.brainmob.languages = owner.languages
 
 /obj/item/organ/internal/mmi_holder/robot
