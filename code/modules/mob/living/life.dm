@@ -6,7 +6,7 @@
 
 	if (transforming)
 		return
-	handle_modifiers() //VOREStation Edit - Needs to be done even if in nullspace.
+	handle_modifiers() //Needs to be done even if in nullspace.
 	if(!loc)
 		return
 
@@ -15,8 +15,6 @@
 		environment = loc.return_air_for_internal_lifeform(src)
 	else
 		environment = loc.return_air()
-
-	//handle_modifiers() // Do this early since it might affect other things later. //VOREStation Edit
 
 	handle_light()
 
@@ -66,7 +64,6 @@
 		handle_ambience()
 
 	//stuff in the stomach
-	//handle_stomach() //VOREStation Code
 
 	update_gravity(mob_get_gravity())
 
@@ -85,9 +82,11 @@
 
 	handle_vision()
 
-	handle_tf_holder()	//VOREStation Addition
+	handle_tf_holder()
 
-	handle_vr_derez() // CHOMPedit
+	handle_dripping()
+
+	handle_vr_derez()
 
 /mob/living/proc/handle_breathing()
 	return

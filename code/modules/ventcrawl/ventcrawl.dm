@@ -11,7 +11,7 @@ var/list/ventcrawl_machinery = list(
 	/obj/item/holder,
 	/obj/machinery/camera,
 	/obj/belly,
-	/obj/soulgem, // CHOMPAdd
+	/obj/soulgem,
 	/obj/screen,
 	/atom/movable/emissive_blocker,
 	/obj/item/rig/protean
@@ -149,7 +149,7 @@ var/list/ventcrawl_machinery = list(
 	if(pipes.len == 1)
 		pipe = pipes[1]
 	else
-		pipe = tgui_input_list(usr, "Crawl Through Vent", "Pick a pipe", pipes)
+		pipe = tgui_input_list(src, "Crawl Through Vent", "Pick a pipe", pipes)
 	if(canmove && pipe)
 		return pipe
 

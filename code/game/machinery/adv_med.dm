@@ -17,7 +17,7 @@
 	var/obj/machinery/body_scanconsole/console
 	var/printing_text = null
 
-/obj/machinery/bodyscanner/Initialize()
+/obj/machinery/bodyscanner/Initialize(mapload)
 	. = ..()
 	default_apply_parts()
 
@@ -161,7 +161,6 @@
 				//SN src = null
 				qdel(src)
 				return
-		else
 	return
 
 /obj/machinery/bodyscanner/tgui_host(mob/user)
@@ -334,8 +333,9 @@
 
 		occupantData["blind"] = (H.sdisabilities & BLIND)
 		occupantData["nearsighted"] = (H.disabilities & NEARSIGHTED)
-		occupantData["husked"] = (HUSK in H.mutations) // VOREstation edit
-		occupantData = attempt_vr(src, "get_occupant_data_vr", list(occupantData, H)) //VOREStation Insert
+		occupantData["brokenspine"] = (H.disabilities & SPINE)
+		occupantData["husked"] = (HUSK in H.mutations)
+		occupantData = attempt_vr(src, "get_occupant_data_vr", list(occupantData, H))
 	data["occupant"] = occupantData
 
 	return data
@@ -538,7 +538,7 @@
 
 			// CHOMPedit begin - malignant organs
 			if(istype(i, /obj/item/organ/internal/malignant))
-				var/obj/item/organ/internal/ORG = occupant.organs_by_name[i.parent_organ]
+				var/obj/item/organ/external/ORG = occupant.organs_by_name[i.parent_organ]
 				hasMalignants += span_red(" -[ORG.name]") + "<BR>"
 			// CHOMPedit end
 
@@ -628,7 +628,6 @@
 				//SN src = null
 				qdel(src)
 				return
-		else
 	return
 
 /obj/machinery/body_scanconsole/proc/findscanner()

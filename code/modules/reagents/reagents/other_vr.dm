@@ -39,6 +39,7 @@
 	color = "#333333"
 	scannable = 1
 	affects_robots = TRUE
+	wiki_flag = WIKI_SPOILER
 
 /datum/reagent/nif_repair_nanites/affect_blood(var/mob/living/carbon/M, var/alien, var/removed)
 	if(ishuman(M))
@@ -92,9 +93,9 @@
 		var/mob/living/simple_mob/slime/S = M
 		S.adjustToxLoss(15 * reac_volume)
 		S.visible_message(span_warning("[S]'s flesh sizzles where the foam touches it!"), span_danger("Your flesh burns in the foam!"))
-
-	M.adjust_fire_stacks(-reac_volume)
-	M.ExtinguishMob()
+	if(istype(M))
+		M.adjust_fire_stacks(-reac_volume)
+		M.ExtinguishMob()
 
 /datum/reagent/liquid_protean
 	name = REAGENT_LIQUIDPROTEAN

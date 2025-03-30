@@ -299,7 +299,7 @@
 		if((stat == 2 || src.losebreath) && get_dist(user, src) <= 3)
 			msg += span_warning("[T.He] [T.does] not appear to be breathing.")
 		if(ishuman(user) && !user.stat && Adjacent(user))
-			user.visible_message(span_infoplain(span_bold("[usr]") + " checks [src]'s pulse."), span_infoplain("You check [src]'s pulse."))
+			user.visible_message(span_infoplain(span_bold("[user]") + " checks [src]'s pulse."), span_infoplain("You check [src]'s pulse."))
 		spawn(15)
 			if(isobserver(user) || (Adjacent(user) && !user.stat)) // If you're a corpse then you can't exactly check their pulse, but ghosts can see anything
 				if(pulse == PULSE_NONE)
@@ -313,7 +313,7 @@
 		msg += span_warning("[T.He] [T.is] on fire!.")
 
 	var/ssd_msg = species.get_ssd(src)
-	if(ssd_msg && (!should_have_organ("brain") || has_brain()) && stat != DEAD)
+	if(ssd_msg && (!should_have_organ(O_BRAIN) || has_brain()) && stat != DEAD)
 		if(!key)
 			msg += span_deadsay("[T.He] [T.is] [ssd_msg]. It doesn't look like [T.he] [T.is] waking up anytime soon.")
 		else if(!client)
@@ -439,6 +439,7 @@
 
 	var/flavor_text = print_flavor_text()
 	if(flavor_text)
+		flavor_text = replacetext(flavor_text, "||", "")
 		msg += "[flavor_text]"
 
 	// VOREStation Start
@@ -446,7 +447,7 @@
 		msg += "Custom link: " + span_linkify("[custom_link]")
 
 	if(ooc_notes)
-		msg += "OOC Notes: <a href='byond://?src=\ref[src];ooc_notes=1'>\[View\]</a> - <a href='byond://?src=\ref[src];print_ooc_notes_to_chat=1'>\[Print\]</a>"
+		msg += "OOC Notes: <a href='byond://?src=\ref[src];ooc_notes=1'>\[View\]</a> - <a href='byond://?src=\ref[src];print_ooc_notes_chat=1'>\[Print\]</a>"
 	msg += "<a href='byond://?src=\ref[src];vore_prefs=1'>\[Mechanical Vore Preferences\]</a>"
 	// VOREStation End
 	msg = list(span_info(jointext(msg, "<br>")))

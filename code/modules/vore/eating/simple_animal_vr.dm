@@ -27,7 +27,7 @@
 	if(istype(src, /mob/living/simple_mob/animal/passive/mouse) && !T.ckey)
 		// Mice can't eat logged out players!
 		return
-	/*if(client && IsAdvancedToolUser()) //CHOMPedit: Mob QOL, not everything can be grabbed and nobody wants wiseguy gotchas for trying.
+	/*if(client && IsAdvancedToolUser()) Mob QOL, not everything can be grabbed and nobody wants wiseguy gotchas for trying.
 		to_chat(src, span_warning("Put your hands to good use instead!"))
 		return
 	*/
@@ -123,13 +123,13 @@
 
 /mob/living/simple_mob/proc/nutrition_heal()
 	set name = "Nutrition Heal"
-	set category = "Abilities.Mob" //CHOMPEdit
+	set category = "Abilities.Mob"
 	set desc = "Slowly regenerate health using nutrition."
 
 	if(nutrition < 10)
 		to_chat(src, span_warning("You are too hungry to regenerate health."))
 		return
-	var/heal_amount = input(src, "Input the amount of health to regenerate at the rate of 10 nutrition per second per hitpoint. Current health: [health] / [maxHealth]", "Regenerate health.") as num|null
+	var/heal_amount = tgui_input_number(src, "Input the amount of health to regenerate at the rate of 10 nutrition per second per hitpoint. Current health: [health] / [maxHealth]", "Regenerate health.", 1, min_value=1)
 	if(!heal_amount)
 		return
 	heal_amount = CLAMP(heal_amount, 1, maxHealth - health)

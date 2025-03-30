@@ -3,7 +3,7 @@
 	name = "cortical borer"
 	icon = 'icons/obj/objects.dmi'
 	icon_state = "borer"
-	organ_tag = "brain"
+	organ_tag = O_BRAIN
 	desc = "A disgusting space slug."
 	parent_organ = BP_HEAD
 	vital = 1
@@ -46,7 +46,7 @@
 /obj/item/organ/internal/stack
 	name = "cortical stack"
 	parent_organ = BP_HEAD
-	icon_state = "brain-prosthetic"
+	icon_state = "brain_prosthetic"
 	organ_tag = "stack"
 	vital = 1
 	var/backup_time = 0

@@ -7,7 +7,7 @@
 	taste_description = "powdered wax"
 	reagent_state = LIQUID
 	color = "#888888"
-	overdose = 5
+	overdose = 10
 
 /datum/reagent/crayon_dust/red
 	name = REAGENT_CRAYONDUSTRED
@@ -56,7 +56,7 @@
 	taste_description = "extremely bitter"
 	reagent_state = LIQUID
 	color = "#888888"
-	overdose = 5
+	overdose = 10
 
 /datum/reagent/marker_ink/black
 	name = REAGENT_MARKERINKBLACK
@@ -176,6 +176,7 @@
 
 	glass_name = "liquid gold"
 	glass_desc = "It's magic. We don't have to explain it."
+	wiki_flag = WIKI_SPOILER
 
 /datum/reagent/adminordrazine/affect_touch(var/mob/living/carbon/M, var/alien, var/removed)
 	affect_blood(M, alien, removed)
@@ -285,7 +286,7 @@
 
 /datum/reagent/hydrogen/tritium
 	name = REAGENT_TRITIUM
-	id = REAGENT_ID_SLIMEJELLY
+	id = REAGENT_ID_TRITIUM
 	description = "A radioactive isotope of hydrogen. It has two extra neutrons, and shares all other chemical characteristics with hydrogen."
 
 /datum/reagent/lithium/lithium6
@@ -316,6 +317,7 @@
 	affects_robots = TRUE
 	description = "The immense power of a supermatter crystal, in liquid form. You're not entirely sure how that's possible, but it's probably best handled with care."
 	taste_description = "taffy" // 0. The supermatter is tasty, tasty taffy.
+	wiki_flag = WIKI_SPOILER
 
 // Same as if you boop it wrong. It touches you, you die
 /datum/reagent/supermatter/affect_touch(mob/living/carbon/M, alien, removed)
@@ -357,6 +359,7 @@
 
 	glass_name = "holy water"
 	glass_desc = "An ashen-obsidian-water mix, this solution will alter certain sections of the brain's rationality."
+	wiki_flag = WIKI_SPOILER
 
 /datum/reagent/water/holywater/affect_ingest(var/mob/living/carbon/M, var/alien, var/removed)
 	..()
@@ -445,6 +448,10 @@
 		var/mob/living/carbon/C = M
 		C.clean_blood(TRUE)
 
+	if(istype(M, /mob/living/simple_mob/vore/aggressive/macrophage)) // Big ouch for viruses
+		var/mob/living/simple_mob/macrophage = M
+		macrophage.adjustToxLoss(20)
+
 /datum/reagent/space_cleaner/touch_obj(var/obj/O)
 	..()
 	O.clean_blood()
@@ -462,6 +469,9 @@
 
 		for(var/mob/living/simple_mob/slime/M in T)
 			M.adjustToxLoss(rand(5, 10))
+
+		for(var/mob/living/simple_mob/vore/aggressive/macrophage/virus in T)
+			virus.adjustToxLoss(rand(5, 10))
 
 	T.apply_fire_protection() // CHOMPAdd - Apply fire protection
 
@@ -644,6 +654,7 @@
 	color = "#333333"
 	metabolism = REM * 3 // Broken nanomachines go a bit slower.
 	scannable = 1
+	wiki_flag = WIKI_SPOILER
 
 /datum/reagent/defective_nanites/affect_blood(var/mob/living/carbon/M, var/alien, var/removed)
 	M.take_organ_damage(2 * removed, 2 * removed)

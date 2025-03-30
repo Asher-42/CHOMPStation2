@@ -63,6 +63,8 @@
 /mob/living/simple_mob/animal/tyr/groundpitcher/init_vore()
 	if(!voremob_loaded)
 		return
+	if(LAZYLEN(vore_organs))
+		return
 	.=..()
 	var/obj/belly/B = vore_selected
 	B.desc	= "You leaned a little too close to the pitcher plant, stumbling over the lip and splashing into a puddle of liquid filling the bottom of the cramped pitcher. You squirm madly, righting yourself and scrabbling at the walls in vain as the slick surface offers no purchase. The dim light grows dark as the pitcher's cap lowers, silently sealing the exit. With a sinking feeling you realize you won't be able to push the exit open even if you could somehow climb that high, leaving you helplessly trapped in the slick, tingling fluid."
@@ -188,6 +190,10 @@
 	health = 18
 	pass_flags = PASSTABLE
 	movement_cooldown = 1
+
+	needs_reload = TRUE
+	reload_max = 1
+	reload_time = 2 SECONDS
 
 	ai_holder_type = /datum/ai_holder/hostile/ranged/robust
 	projectiletype = /obj/item/projectile/arc/spore

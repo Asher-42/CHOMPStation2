@@ -11,7 +11,7 @@
 
 	origin_tech = list(TECH_BIO = 5)
 
-/obj/item/organ/internal/malignant/New(var/mob/living/holder, var/internal, var/force_location = null, var/forcetag = null)
+/obj/item/organ/internal/malignant/Initialize(mapload, var/internal, var/force_location = null, var/forcetag = null)
 	organ_tag = "[initial(organ_tag)]_[rand(1,9999)]"
 	if(forcetag)
 		organ_tag = forcetag
@@ -22,23 +22,24 @@
 			while(++i < 10)
 				// done here, because New() does all the setup for placing the organ...
 				// attempt to select a valid exterior organ that isn't synthetic!
-				parent_organ = pick(validBPspawns)
-				if(isliving(holder))
-					var/obj/item/organ/checklimb = holder.organs_by_name[parent_organ]
+				if(isliving(loc))
+					parent_organ = pick(validBPspawns)
+					var/mob/living/L = loc
+					var/obj/item/organ/checklimb = L.organs_by_name[parent_organ]
 					if(checklimb)
 						// valid limb, check if organic!
 						if(checklimb.status == 0 && checklimb.robotic < ORGAN_ROBOT)
-							return ..( holder, internal)
+							return ..(mapload, internal)
 		else
 			parent_organ = force_location
-			return ..( holder, internal)
+			return ..(mapload, internal)
 		// invalid, spawn as dead...
 		status = ORGAN_DEAD
 	else
 		// engineered ones don't do all of the above
 		if(force_location)
 			parent_organ = force_location
-		return ..( holder, internal)
+	return ..(mapload, internal)
 
 /mob/living/carbon/human/proc/random_malignant_organ( var/allowtumors = TRUE, var/allowparasites = TRUE, var/allowengineered = TRUE)
 	// get a list of valid malignant organs and spawn one
@@ -74,7 +75,7 @@
 		return TRUE
 
 	// welp, clean up.
-	neworgan.Destroy()
+	qdel(neworgan)
 	return FALSE
 
 
@@ -121,7 +122,7 @@
 	// perform actions based on the parasite
 	if(feedmodmax > 0)
 		if(owner.nutrition > 0)
-			owner.nutrition = max(owner.nutrition - rand( growth * feedmodmin, growth * feedmodmax),0)
+			owner.adjust_nutrition(-rand(growth * feedmodmin, growth * feedmodmax))
 		else
 			owner.remove_blood(1 + rand( growth * feedmodmin, growth * feedmodmax))
 	// by default, don't grow. Other parasites might thought!
@@ -155,13 +156,13 @@
 			owner.AdjustWeakened(3 * base_mult)
 		if(prob(75))
 			owner.AdjustConfused(4 * base_mult)
-		var/obj/item/organ/O = owner.organs_by_name[parent_organ]
+		var/obj/item/organ/external/O = owner.organs_by_name[parent_organ]
 		if(damage >= min_broken_damage)
-			owner.custom_pain("<span class='warning'>You feel a painful sensation in your [O.name].</span>",damage,TRUE)
+			owner.custom_pain(span_warning("You feel a painful sensation in your [O.name]."),damage,TRUE)
 			owner.AdjustBlinded(6 * base_mult)
 			owner.adjustToxLoss(4 * base_mult)
 		else
-			owner.custom_pain("<span class='warning'>You feel a strange sensation in your [O.name].</span>",damage / 10,TRUE)
+			owner.custom_pain(span_warning("You feel a strange sensation in your [O.name]."),damage / 10,TRUE)
 
 /****************************************************
 				Tumor varients
@@ -196,7 +197,7 @@
 		if(prob(1))
 			owner.Weaken(3)
 			owner.adjustToxLoss(3)
-			owner.nutrition = max(owner.nutrition - rand(1,5),0)
+			owner.adjust_nutrition(-rand(1,5))
 			cooldown = rand(cooldownmin,cooldownmax)
 	if(stage > 2)
 		if(prob(1))
@@ -210,7 +211,7 @@
 						owner.make_dizzy(90)
 					else
 						owner.Confuse(20)
-			owner.nutrition = max(owner.nutrition - rand(1,5),0)
+			owner.adjust_nutrition(-rand(1,5))
 			cooldown = rand(cooldownmin,cooldownmax)
 	if(stage > 3)
 		if(prob(1))
@@ -219,7 +220,7 @@
 			bodypart.wounds += W
 			owner.Weaken(10)
 			owner.adjustToxLoss(20)
-			owner.nutrition = max(owner.nutrition - rand(1,5),0)
+			owner.adjust_nutrition(-rand(1,5))
 			cooldown = rand(cooldownmin,cooldownmax)
 
 
@@ -241,7 +242,7 @@
 
 	if(prob(3))
 		owner.adjustToxLoss(2)
-		owner.nutrition = max(owner.nutrition - rand(1,5),0)
+		owner.adjust_nutrition(-rand(1,5))
 
 	if(prob(2))
 		owner.vomit()
@@ -250,14 +251,14 @@
 /obj/item/organ/internal/malignant/tumor/potato/attackby(obj/item/W as obj, mob/user as mob)
 	if(istype(W,/obj/item/material/knife))
 		new /obj/item/reagent_containers/food/snacks/rawsticks(get_turf(src))
-		to_chat(user, "<span class='notice'>You cut the mimetic potato.</span>")
+		to_chat(user, span_notice("You cut the mimetic potato."))
 		qdel(src)
 		return
 	if(istype(W, /obj/item/stack/cable_coil))
 		var/obj/item/stack/cable_coil/C = W
 		if(C.use(5))
 			//TODO: generalize this.
-			to_chat(user, "<span class='notice'>You add some cable to the [src.name] and slide it inside the battery casing.</span>")
+			to_chat(user, span_notice("You add some cable to the [src.name] and slide it inside the battery casing."))
 			var/obj/item/cell/potato/pocell = new /obj/item/cell/potato(get_turf(user))
 			if(src.loc == user && ishuman(user))
 				user.put_in_hands(pocell)
@@ -303,16 +304,16 @@
 			owner.Confuse(30)
 
 	if(prob(2))
-		var/obj/item/organ/O = owner.organs_by_name[parent_organ]
+		var/obj/item/organ/external/O = owner.organs_by_name[parent_organ]
 		if(stage_progress > 200)
-			owner.custom_pain("<span class='warning'>You feel bloated. The pain in your [O.name] is agonizing.</span>",20,TRUE)
-			owner.custom_emote(VISIBLE_MESSAGE, "winces slightly.")
+			owner.custom_pain(span_warning("You feel bloated. The pain in your [O.name] is agonizing."),20,TRUE)
+			owner.automatic_custom_emote(VISIBLE_MESSAGE, "winces slightly.", check_stat = TRUE)
 		else if(stage_progress > 100)
-			owner.custom_pain("<span class='warning'>You feel a pressure inside your [O.name].</span>",5,TRUE)
-			owner.custom_emote(VISIBLE_MESSAGE, "winces painfully.")
+			owner.custom_pain(span_warning("You feel a pressure inside your [O.name]."),5,TRUE)
+			owner.automatic_custom_emote(VISIBLE_MESSAGE, "winces painfully.", check_stat = TRUE)
 		else
-			owner.custom_pain("<span class='danger'>The pressure inside your [O.name] hurts.</span>",1,TRUE)
-			owner.custom_emote(VISIBLE_MESSAGE, "winces painfully.")
+			owner.custom_pain(span_danger("The pressure inside your [O.name] hurts."),1,TRUE)
+			owner.automatic_custom_emote(VISIBLE_MESSAGE, "winces painfully.", check_stat = TRUE)
 
 /obj/item/organ/internal/malignant/tumor/pinata/attackby(obj/item/W as obj, mob/user as mob)
 	if(can_puncture(W))
@@ -344,7 +345,7 @@
 	if(!turf_clear(T))
 		T = get_turf(src)
 	new /obj/effect/decal/cleanable/confetti(T)
-	Destroy()
+	qdel(src)
 
 
 // Teleports you randomly, until it gets you killed
@@ -455,15 +456,15 @@
 		supply_conversion_value = initial(supply_conversion_value) + ((thalers * SSsupply.points_per_money))
 
 	if(prob(2))
-		var/obj/item/organ/O = owner.organs_by_name[parent_organ]
+		var/obj/item/organ/external/O = owner.organs_by_name[parent_organ]
 		if(thalers < 100)
-
+			pass()
 		else if(thalers < 500)
-			owner.custom_pain("<span class='warning'>You feel bloated.</span>",1,TRUE)
-			owner.custom_emote(VISIBLE_MESSAGE, "winces slightly.")
+			owner.custom_pain(span_warning("You feel bloated."),1,TRUE)
+			owner.automatic_custom_emote(VISIBLE_MESSAGE, "winces slightly.", check_stat = TRUE)
 		else if(thalers < 1000)
-			owner.custom_pain("<span class='warning'>You feel a pressure inside your [O.name].</span>",6,TRUE)
-			owner.custom_emote(VISIBLE_MESSAGE, "winces painfully.")
+			owner.custom_pain(span_warning("You feel a pressure inside your [O.name]."),6,TRUE)
+			owner.automatic_custom_emote(VISIBLE_MESSAGE, "winces painfully.", check_stat = TRUE)
 			if(prob(30))
 				owner.vomit()
 			else if(prob(30))
@@ -471,8 +472,8 @@
 			else
 				owner.Confuse(15)
 		else if(thalers < 5000)
-			owner.custom_pain("<span class='danger'>The pressure inside your [O.name] hurts.</span>",15,TRUE)
-			owner.custom_emote(VISIBLE_MESSAGE, "winces painfully.")
+			owner.custom_pain(span_danger("The pressure inside your [O.name] hurts."),15,TRUE)
+			owner.automatic_custom_emote(VISIBLE_MESSAGE, "winces painfully.", check_stat = TRUE)
 			owner.Weaken(3)
 			if(prob(30))
 				owner.Stun(10)
@@ -515,7 +516,7 @@
 	while(thalers > 1)
 		thalers -= 1
 		spawn_money(1, src.loc)
-	Destroy()
+	qdel(src)
 
 
 /****************************************************
@@ -606,9 +607,9 @@
 
 	origin_tech = list(TECH_BIO = 3)
 
-/obj/item/organ/internal/malignant/engineered/lattice/New(var/mob/living/holder, var/internal, var/force_location = null, var/forcetag = null)
+/obj/item/organ/internal/malignant/engineered/lattice/Initialize(mapload, var/internal, var/force_location = null, var/forcetag = null)
 	growth_trigger = rand(150,200)
-	return ..( holder, internal, force_location, forcetag)
+	return ..(mapload, internal, force_location, forcetag)
 
 /obj/item/organ/internal/malignant/engineered/lattice/process()
 	. = ..()
@@ -621,7 +622,7 @@
 		// finished, ready to TRANSFORM
 		if(owner.radiation > 20)
 			growth++
-			owner.nutrition -= rand(1,3)
+			owner.adjust_nutrition(-rand(1,3))
 		if(owner.nutrition > 20)
 			if(growth > growth_trigger)
 				// spawn new organ, delete us
@@ -630,7 +631,7 @@
 					var/ourowner = owner
 					var/ourloc = parent_organ
 					var/ourtag = organ_tag
-					Destroy()
+					qdel(src)
 					new newpath(ourowner, TRUE, ourloc, ourtag)
 			cooldown = rand(2,5)
 		else
@@ -639,7 +640,7 @@
 			cooldown = rand(5,10)
 
 	else if(!prepared)
-		owner.nutrition -= rand(1,3)
+		owner.adjust_nutrition(-rand(1,3))
 		if(owner.nutrition > 20)
 			growth++
 		if(growth > growth_trigger)
@@ -729,7 +730,7 @@
 		// process the chems!
 		if(owner.bloodstr.get_reagent_amount(chemid) < 5)
 			if(prob(10))
-				owner.nutrition = max(owner.nutrition - 1,0) // num num
+				owner.adjust_nutrition(-1) // num num
 			owner.bloodstr.add_reagent(chemid,rand(5,10))
 			cooldown = rand(5,10)
 

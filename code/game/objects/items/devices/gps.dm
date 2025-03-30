@@ -26,7 +26,7 @@ GLOBAL_LIST_EMPTY(GPS_list)
 	pickup_sound = 'sound/items/pickup/device.ogg'
 	drop_sound = 'sound/items/drop/device.ogg'
 
-/obj/item/gps/Initialize()
+/obj/item/gps/Initialize(mapload)
 	. = ..()
 	compass = new(src)
 	GLOB.GPS_list += src
@@ -183,8 +183,8 @@ GLOBAL_LIST_EMPTY(GPS_list)
 /obj/item/gps/attack_self(mob/user)
 	display(user)
 
- // Compiles all the data not available directly from the GPS
- // Like the positions and directions to all other GPS units
+// Compiles all the data not available directly from the GPS
+// Like the positions and directions to all other GPS units
 /obj/item/gps/proc/display_list()
 	var/list/dat = list()
 
@@ -318,7 +318,7 @@ GLOBAL_LIST_EMPTY(GPS_list)
 	if(href_list["track_color"])
 		var/obj/item/gps/gps = locate(href_list["track_color"])
 		if(istype(gps) && !QDELETED(gps))
-			var/new_colour = input(usr, "Enter a new tracking color.", "GPS Waypoint Color") as color|null
+			var/new_colour = tgui_color_picker(usr, "Enter a new tracking color.", "GPS Waypoint Color")
 			if(new_colour && istype(gps) && !QDELETED(gps) && holder == usr && !usr.incapacitated())
 				to_chat(usr, span_notice("You adjust the colour \the [src] is using to highlight [gps.gps_tag]."))
 				LAZYSET(tracking_devices, href_list["track_color"], new_colour)

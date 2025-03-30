@@ -108,7 +108,7 @@
 	base_icon = 'icons/turf/flooring/asteroid.dmi'
 	initial_flooring = null
 
-/turf/simulated/floor/holofloor/desert/Initialize()
+/turf/simulated/floor/holofloor/desert/Initialize(mapload)
 	. = ..()
 	if(prob(10))
 		add_overlay("asteroid[rand(0,9)]")
@@ -148,6 +148,7 @@
 
 /datum/unarmed_attack/holopugilism
 	sparring_variant_type = /datum/unarmed_attack/holopugilism
+	is_punch = TRUE
 
 /datum/unarmed_attack/holopugilism/unarmed_override(var/mob/living/carbon/human/user,var/mob/living/carbon/human/target,var/zone)
 	user.do_attack_animation(src)
@@ -300,11 +301,11 @@
 	unacidable = TRUE
 	var/active = 0
 
-/obj/item/holo/esword/green/New()
-		lcolor = "#008000"
+/obj/item/holo/esword/green
+	lcolor = "#008000"
 
-/obj/item/holo/esword/red/New()
-		lcolor = "#FF0000"
+/obj/item/holo/esword/red
+	lcolor = "#FF0000"
 
 /obj/item/holo/esword/handle_shield(mob/user, var/damage, atom/damage_source = null, mob/attacker = null, var/def_zone = null, var/attack_text = "the attack")
 	if(active && default_parry_check(user, attacker, damage_source) && prob(50))
@@ -426,18 +427,14 @@
 	active_power_usage = 6
 	power_channel = ENVIRON
 
-/obj/machinery/readybutton/attack_ai(mob/user as mob)
+/obj/machinery/readybutton/attack_ai(mob/user)
 	to_chat(user, "The station AI is not to interact with these devices!")
 	return
 
-/obj/machinery/readybutton/New()
-	..()
-
-
-/obj/machinery/readybutton/attackby(obj/item/W as obj, mob/user as mob)
+/obj/machinery/readybutton/attackby(obj/item/W, mob/user)
 	to_chat(user, "The device is a solid button, there's nothing you can do with it!")
 
-/obj/machinery/readybutton/attack_hand(mob/user as mob)
+/obj/machinery/readybutton/attack_hand(mob/user)
 
 	if(user.stat || stat & (NOPOWER|BROKEN))
 		to_chat(user, "This device is not powered.")
@@ -451,7 +448,7 @@
 		qdel(src)
 
 	if(eventstarted)
-		to_chat(usr, "The event has already begun!")
+		to_chat(user, "The event has already begun!")
 		return
 
 	ready = !ready
@@ -500,8 +497,8 @@
 	meat_amount = 0
 	meat_type = null
 
-/mob/living/simple_mob/animal/space/carp/holodeck/New()
-	..()
+/mob/living/simple_mob/animal/space/carp/holodeck/Initialize(mapload)
+	. = ..()
 	set_light(2) //hologram lighting
 
 /mob/living/simple_mob/animal/space/carp/holodeck/proc/set_safety(var/safe)

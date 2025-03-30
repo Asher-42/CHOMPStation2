@@ -1,7 +1,7 @@
 /obj/item/organ/internal/liver
 	name = "liver"
 	icon_state = "liver"
-	organ_tag = "liver"
+	organ_tag = O_LIVER
 	parent_organ = BP_GROIN
 
 /obj/item/organ/internal/liver/process()
@@ -59,10 +59,12 @@
 /obj/item/organ/internal/liver/grey
 	icon_state = "liver_grey"
 
-/obj/item/organ/internal/liver/grey/colormatch/New()
+/obj/item/organ/internal/liver/grey/colormatch/Initialize(mapload, internal)
 	..()
-	var/mob/living/carbon/human/H = null
-	spawn(15)
-		if(ishuman(owner))
-			H = owner
-			color = H.species.blood_color
+	return INITIALIZE_HINT_LATELOAD
+
+/obj/item/organ/internal/liver/grey/colormatch/LateInitialize()
+	. = ..()
+	if(ishuman(loc))
+		var/mob/living/carbon/human/H = loc
+		color = H.species.blood_color

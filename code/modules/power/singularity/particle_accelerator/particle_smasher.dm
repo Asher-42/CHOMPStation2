@@ -27,7 +27,7 @@
 	var/max_storage = 3	// How many items can be jammed into it?
 	var/list/recipes	// The list containing the Particle Smasher's recipes.
 
-/obj/machinery/particle_smasher/Initialize()
+/obj/machinery/particle_smasher/Initialize(mapload)
 	. = ..()
 	storage = list()
 	update_icon()
@@ -37,7 +37,7 @@
 	for(var/datum/particle_smasher_recipe/D in recipes)
 		qdel(D)
 	recipes.Cut()
-	..()
+	. = ..()
 
 /obj/machinery/particle_smasher/examine(mob/user)
 	. = ..()
@@ -231,7 +231,7 @@
 	if(recipe.items && recipe.items.len)
 		for(var/obj/item/I in storage)
 			for(var/item_type in recipe.items)
-				if(istype(I, item_type))
+				if(istype(I, item_type) && prob(recipe.item_consume_chance))
 					storage -= I
 					qdel(I)
 					break
@@ -270,6 +270,7 @@
  */
 
 /datum/particle_smasher_recipe
+	var/display_name = ""
 	var/list/reagents	// example: = list(REAGENT_ID_PACID = 5)
 	var/list/items		// example: = list(/obj/item/tool/crowbar, /obj/item/welder) Place /foo/bar before /foo. Do not include fruit. Maximum of 3 items.
 	var/recipe_type = PS_RESULT_STACK			// Are we producing a stack or an item?
@@ -281,6 +282,8 @@
 	var/required_atmos_temp_min = 0		// The minimum ambient atmospheric temperature required, in kelvin.
 	var/required_atmos_temp_max = 600	// The maximum ambient atmospheric temperature required, in kelvin.
 	var/probability = 0					// The probability for the recipe to be produced. 0 will make it impossible.
+	var/item_consume_chance = 100		// The probability for the items (not materials) used in the recipe to be consume.
+	var/wiki_flag = NONE
 
 /datum/particle_smasher_recipe/proc/check_items(var/obj/container as obj)
 	. = 1
@@ -319,6 +322,7 @@
 	return .
 
 /datum/particle_smasher_recipe/deuterium_tritium
+	display_name = MAT_TRITIUM + " from " + MAT_DEUTERIUM
 	reagents = list(REAGENT_ID_HYDROGEN = 15)
 
 	result = /obj/item/stack/material/tritium
@@ -331,6 +335,7 @@
 	probability = 30
 
 /datum/particle_smasher_recipe/verdantium_morphium
+	display_name = MAT_MORPHIUM + " from " + MAT_VERDANTIUM
 	result = /obj/item/stack/material/morphium
 	required_material = /obj/item/stack/material/verdantium
 
@@ -339,6 +344,7 @@
 	probability = 20
 
 /datum/particle_smasher_recipe/plasteel_morphium
+	display_name = MAT_MORPHIUM + " from Alien Junk"
 	items = list(/obj/item/prop/alien/junk)
 
 	result = /obj/item/stack/material/morphium
@@ -349,6 +355,7 @@
 	probability = 10
 
 /datum/particle_smasher_recipe/osmium_lead
+	display_name = MAT_OSMIUM + " from " + MAT_LEAD
 	reagents = list(REAGENT_ID_TUNGSTEN = 10)
 
 	result = /obj/item/stack/material/lead
@@ -362,6 +369,7 @@
 	probability = 50
 
 /datum/particle_smasher_recipe/phoron_valhollide
+	display_name = MAT_VALHOLLIDE + " from " + MAT_PHORON
 	reagents = list(REAGENT_ID_PHORON = 10, REAGENT_ID_PACID = 10)
 
 	result = /obj/item/stack/material/valhollide
@@ -375,6 +383,7 @@
 	probability = 10
 
 /datum/particle_smasher_recipe/valhollide_supermatter
+	display_name = MAT_SUPERMATTER + " from " + MAT_VALHOLLIDE
 	reagents = list(REAGENT_ID_PHORON = 300)
 
 	result = /obj/item/stack/material/supermatter
@@ -388,6 +397,7 @@
 	probability = 1
 
 /datum/particle_smasher_recipe/donkpockets_coal
+	display_name = "Ruined Donkpocket"
 	items = list(/obj/item/reagent_containers/food/snacks/donkpocket)
 
 	recipe_type = PS_RESULT_ITEM
@@ -403,6 +413,7 @@
 	probability = 90
 
 /datum/particle_smasher_recipe/donkpockets_ascend
+	display_name = "Ascended Donkpocket"
 	items = list(/obj/item/reagent_containers/food/snacks/donkpocket)
 	reagents = list(REAGENT_ID_PHORON = 120)
 
@@ -417,6 +428,21 @@
 	required_atmos_temp_min = 400
 	required_atmos_temp_max = 20000
 	probability = 20
+
+/datum/particle_smasher_recipe/glamour
+	display_name = "Synthesize " + MAT_GLAMOUR
+	items = list(/obj/item/glamour_unstable)
+
+	result = /obj/item/stack/material/glamour
+	required_material = /obj/item/stack/material/phoron
+
+	required_energy_min = 500
+	required_energy_max = 600
+
+	required_atmos_temp_min = 0
+	required_atmos_temp_max = 50
+	probability = 100
+	item_consume_chance = 10 //Allows only a few unstable glamour to be given out to get lots of stable ones.
 
 #undef PS_RESULT_STACK
 #undef PS_RESULT_ITEM
