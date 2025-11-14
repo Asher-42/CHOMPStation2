@@ -3,6 +3,7 @@
 	desc = "A fancy bed with built-in sensory I/O ports and connectors to interface users' minds with their bodies in virtual reality."
 	icon = 'icons/obj/Cryogenic2.dmi'
 	icon_state = "body_scanner_0"
+	flags = REMOTEVIEW_ON_ENTER
 
 	var/base_state = "body_scanner_"
 
@@ -29,7 +30,6 @@
 	idle_power_usage = 15
 	active_power_usage = 200
 	light_color = "#FF0000"
-	//var/global/list/vr_mob_tf_options // Global var located in global_lists.dm
 
 /obj/machinery/vr_sleeper/perfect
 	perfect_replica = TRUE
@@ -56,12 +56,12 @@
 /obj/machinery/vr_sleeper/process()
 	if(stat & (NOPOWER|BROKEN))
 		if(occupant)
-			go_out()
+			occupant.exit_vr(FALSE)
 			visible_message(span_infoplain(span_bold("\The [src]") + " emits a low droning sound, before the pod door clicks open."))
 		return
 	else if(eject_dead && occupant && occupant.stat == DEAD) // If someone dies somehow while inside, spit them out.
 		visible_message(span_warning("\The [src] sounds an alarm, swinging its hatch open."))
-		go_out()
+		occupant.exit_vr(FALSE)
 
 /obj/machinery/vr_sleeper/update_icon()
 	icon_state = "[base_state][occupant ? "1" : "0"]"
@@ -99,7 +99,7 @@
 		if(occupant && avatar)
 			avatar.exit_vr()
 			avatar = null
-			go_out()
+			perform_exit()
 		return
 
 
@@ -118,9 +118,9 @@
 
 
 
-/obj/machinery/vr_sleeper/emp_act(var/severity)
+/obj/machinery/vr_sleeper/emp_act(severity, recursive)
 	if(stat & (BROKEN|NOPOWER))
-		..(severity)
+		..(severity, recursive)
 		return
 
 	if(occupant)
@@ -132,9 +132,9 @@
 			visible_message(span_danger("\The [src]'s internal lighting flashes rapidly, before the hatch swings open with a cloud of smoke."))
 			smoke.set_up(severity, 0, src)
 			smoke.start("#202020")
-		go_out()
+		perform_exit()
 
-	..(severity)
+	..(severity, recursive)
 
 /obj/machinery/vr_sleeper/verb/eject()
 	set src in view(1)
@@ -144,12 +144,10 @@
 	if(usr.incapacitated())
 		return
 
-	var/forced = FALSE
-
 	if(stat & (BROKEN|NOPOWER) || occupant && occupant.stat == DEAD)
-		forced = TRUE
-
-	go_out(forced)
+		perform_exit()
+	else
+		go_out()
 	add_fingerprint(usr)
 
 /obj/machinery/vr_sleeper/verb/climb_in()
@@ -165,7 +163,7 @@
 /obj/machinery/vr_sleeper/relaymove(mob/user as mob)
 	if(user.incapacitated())
 		return 0 //maybe they should be able to get out with cuffs, but whatever
-	go_out(TRUE)
+	perform_exit()
 
 /obj/machinery/vr_sleeper/proc/go_in(var/mob/M, var/mob/user)
 	if(!M)
@@ -184,15 +182,12 @@
 	else
 		visible_message("\The [user] starts putting [M] into \the [src].")
 
-	if(do_after(user, 20))
+	if(do_after(user, 2 SECONDS, target = src))
 		if(occupant)
 			to_chat(user, span_warning("\The [src] is already occupied."))
 			return
 		M.stop_pulling()
-		if(M.client)
-			M.client.perspective = EYE_PERSPECTIVE
-			M.client.eye = src
-		M.loc = src
+		M.forceMove(src)
 		occupant = M
 
 		update_icon()
@@ -204,19 +199,27 @@
 			to_chat(user, span_warning("\The [src] rejects [M] with a sharp beep."))
 	return
 
-/obj/machinery/vr_sleeper/proc/go_out(var/forced = TRUE)
+/obj/machinery/vr_sleeper/proc/go_out()
 	if(!occupant)
 		return
 
-	if(!forced && avatar)
+	if(avatar)
 		if(tgui_alert(avatar, "Someone wants to remove you from virtual reality. Do you want to leave?", "Leave VR?", list("Yes", "No")) != "Yes")
 			return
 
+	perform_exit()
+
+//The actual bulk of the exit code.
+/obj/machinery/vr_sleeper/proc/perform_exit()
+	if(!occupant)
+		return
+
 	avatar = null
 
-	if(occupant.client)
-		occupant.client.eye = occupant.client.mob
-		occupant.client.perspective = MOB_PERSPECTIVE
+	if(occupant.vr_link)
+		occupant.vr_link.exit_vr(FALSE)
+
+	occupant.reset_perspective() // Needed for returning from VR
 	occupant.forceMove(get_turf(src))
 	occupant = null
 	for(var/atom/movable/A in src) // In case an object was dropped inside or something
@@ -224,7 +227,7 @@
 			continue
 		if(A in component_parts)
 			continue
-		A.loc = src.loc
+		A.forceMove(get_turf(src))
 	update_use_power(USE_POWER_IDLE)
 	update_icon()
 
@@ -249,6 +252,8 @@
 	// If they've already enterred VR, and are reconnecting, prompt if they want a new body
 	if(avatar && tgui_alert(occupant, "You already have a [avatar.stat == DEAD ? "" : "deceased "]Virtual Reality avatar. Would you like to use it?", "New avatar", list("Yes", "No")) != "Yes")
 		// Delink the mob
+		if(!occupant) //We can walk out of this before we give a prompt...A TGUI state won't help here sadly.
+			return
 		occupant.vr_link = null
 		avatar = null
 
@@ -256,7 +261,7 @@
 		// Get the desired spawn location to put the body
 		var/S = null
 		var/list/vr_landmarks = list()
-		for(var/obj/effect/landmark/virtual_reality/sloc in landmarks_list)
+		for(var/obj/effect/landmark/virtual_reality/sloc in GLOB.landmarks_list)
 			vr_landmarks += sloc.name
 
 		S = tgui_input_list(occupant, "Please select a location to spawn your avatar at:", "Spawn location", vr_landmarks)
@@ -265,12 +270,12 @@
 
 		var/tf = null
 		if(tgui_alert(occupant, "Would you like to play as a different creature?", "Join as a mob?", list("Yes", "No")) == "Yes")
-			var/k = tgui_input_list(occupant, "Please select a creature:", "Mob list", vr_mob_tf_options)
-			if(!k)
+			var/k = tgui_input_list(occupant, "Please select a creature:", "Mob list", GLOB.vr_mob_tf_options)
+			if(!k || !occupant) //Our occupant can walk out.
 				return 0
-			tf = vr_mob_tf_options[k]
+			tf = GLOB.vr_mob_tf_options[k]
 
-		for(var/obj/effect/landmark/virtual_reality/i in landmarks_list)
+		for(var/obj/effect/landmark/virtual_reality/i in GLOB.landmarks_list)
 			if(i.name == S)
 				S = i
 				break
@@ -288,7 +293,7 @@
 		occupant.enter_vr(avatar)
 		if(spawn_with_clothing)
 			job_master.EquipRank(avatar,"Visitor", 1, FALSE)
-		add_verb(avatar,/mob/living/carbon/human/proc/exit_vr)
+		add_verb(avatar,/mob/living/carbon/human/proc/perform_exit_vr)
 		add_verb(avatar,/mob/living/carbon/human/proc/vr_transform_into_mob)
 		add_verb(avatar,/mob/living/proc/set_size)
 		avatar.virtual_reality_mob = TRUE
@@ -304,17 +309,19 @@
 			avatar.sync_organ_dna()
 			avatar.initialize_vessel()
 
+		SEND_SIGNAL(avatar, COMSIG_HUMAN_DNA_FINALIZED)
+
 		if(tf)
 			var/mob/living/new_form = avatar.transform_into_mob(tf, TRUE) // No need to check prefs when the occupant already chose to transform.
 			if(isliving(new_form)) // Make sure the mob spawned properly.
 				add_verb(new_form,/mob/living/proc/vr_revert_mob_tf)
 				new_form.virtual_reality_mob = TRUE
 
-		add_verb(avatar, /mob/living/carbon/human/proc/exit_vr) //ahealing removes the prommie verbs and the VR verbs, giving it back
+		add_verb(avatar, /mob/living/carbon/human/proc/perform_exit_vr) //ahealing removes the prommie verbs and the VR verbs, giving it back
 		avatar.Sleeping(1)
 
 		// Prompt for username after they've enterred the body.
-		var/newname = sanitize(tgui_input_text(avatar, "You are entering virtual reality. Your username is currently [src.name]. Would you like to change it to something else?", "Name change", null, MAX_NAME_LEN), MAX_NAME_LEN)
+		var/newname = tgui_input_text(avatar, "You are entering virtual reality. Your username is currently [src.name]. Would you like to change it to something else?", "Name change", null, MAX_NAME_LEN)
 		if(newname)
 			avatar.real_name = newname
 			avatar.name = newname

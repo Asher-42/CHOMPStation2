@@ -11,24 +11,24 @@
 /obj/structure/lattice/Initialize(mapload)
 	. = ..()
 
-	if(!(istype(src.loc, /turf/space) || istype(src.loc, /turf/simulated/open) || istype(src.loc, /turf/simulated/mineral) || istype(src.loc, /turf/simulated/shuttle/plating/airless/carry)))
+	if(!(isopenturf(src.loc) || ismineralturf(src.loc) || istype(src.loc, /turf/simulated/shuttle/plating/airless/carry)))
 		return INITIALIZE_HINT_QDEL
 
 	for(var/obj/structure/lattice/LAT in src.loc)
 		if(LAT != src)
-			log_debug("Found multiple lattices at '[log_info_line(loc)]'") //VOREStation Edit, why was this a runtime, it's harmless
+			log_mapping("Found multiple lattices at '[log_info_line(loc)]'") //VOREStation Edit, why was this a runtime, it's harmless
 			return INITIALIZE_HINT_QDEL
 	icon = 'icons/obj/smoothlattice.dmi'
 	icon_state = "latticeblank"
 	updateOverlays()
-	for (var/dir in cardinal)
+	for (var/dir in GLOB.cardinal)
 		var/obj/structure/lattice/L
 		if(locate(/obj/structure/lattice, get_step(src, dir)))
 			L = locate(/obj/structure/lattice, get_step(src, dir))
 			L.updateOverlays()
 
 /obj/structure/lattice/Destroy()
-	for (var/dir in cardinal)
+	for (var/dir in GLOB.cardinal)
 		var/obj/structure/lattice/L
 		if(locate(/obj/structure/lattice, get_step(src, dir)))
 			L = locate(/obj/structure/lattice, get_step(src, dir))
@@ -80,7 +80,7 @@
 
 		var/dir_sum = 0
 
-		for (var/direction in cardinal)
+		for (var/direction in GLOB.cardinal)
 			if(locate(/obj/structure/lattice, get_step(src, direction)))
 				dir_sum += direction
 			else

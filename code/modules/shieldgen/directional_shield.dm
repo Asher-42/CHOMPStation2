@@ -115,6 +115,7 @@
 	return ..()
 
 /obj/item/shield_projector/proc/moved_event()
+	SIGNAL_HANDLER
 	update_shield_positions()
 
 /obj/item/shield_projector/proc/create_shield(var/newloc, var/new_dir)
@@ -138,6 +139,7 @@
 	active = FALSE
 
 /obj/item/shield_projector/proc/update_shield_positions()
+	SIGNAL_HANDLER
 	for(var/obj/effect/directional_shield/S in active_shields)
 		S.relocate()
 
@@ -216,7 +218,7 @@
 	if(Adjacent(user))
 		. += "Its shield matrix is at [round( (shield_health / max_shield_health) * 100, 0.01)]% strength."
 
-/obj/item/shield_projector/emp_act(var/severity)
+/obj/item/shield_projector/emp_act(severity, recursive)
 	adjust_health(-max_shield_health / severity) // A strong EMP will kill the shield instantly, but weaker ones won't on the first hit.
 
 // Subtypes

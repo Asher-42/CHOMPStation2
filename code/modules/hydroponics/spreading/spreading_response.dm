@@ -1,10 +1,9 @@
 /obj/effect/plant/HasProximity(turf/T, datum/weakref/WF, old_loc)
-	SIGNAL_HANDLER
 	if(isnull(WF))
 		return
 	var/atom/movable/AM = WF.resolve()
 	if(isnull(AM))
-		log_debug("DEBUG: HasProximity called without reference on [src].")
+		log_runtime("DEBUG: HasProximity called without reference on [src].")
 		return
 	if(!is_mature() || seed.get_trait(TRAIT_SPREAD) != 2)
 		return
@@ -114,7 +113,7 @@
 			src.visible_message(span_danger("Tendrils lash out from \the [src] and drag \the [victim] in!"))
 			victim.forceMove(src.loc)
 			buckle_mob(victim)
-			victim.set_dir(pick(cardinal))
+			victim.set_dir(pick(GLOB.cardinal))
 			to_chat(victim, span_danger("Tendrils [pick("wind", "tangle", "tighten")] around you!"))
 			victim.Weaken(0.5)
 			seed.do_thorns(victim,src)

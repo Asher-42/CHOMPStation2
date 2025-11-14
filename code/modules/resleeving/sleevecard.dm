@@ -18,7 +18,7 @@
 			var/datum/transcore_db/db = SStranscore.db_by_mind_name(M.name)
 			if(db)
 				to_chat(user, span_notice("You begin uploading [M.name] into \the [src]."))
-				if(do_after(user,8 SECONDS,src))
+				if(do_after(user, 8 SECONDS, target = src))
 					var/datum/transhuman/mind_record/record = db.backed_up[M.name]
 					to_chat(user, span_notice("You have successfully uploaded [M.name] into \the [src]"))
 					sleeveInto(record)
@@ -46,11 +46,9 @@
 	infomorph.ooc_notes = MR.mind_oocnotes
 	infomorph.ooc_notes_likes = MR.mind_ooclikes
 	infomorph.ooc_notes_dislikes = MR.mind_oocdislikes
-	//CHOMPEdit Start
 	infomorph.ooc_notes_favs = MR.mind_oocfavs
 	infomorph.ooc_notes_maybes = MR.mind_oocmaybes
 	infomorph.ooc_notes_style = MR.mind_oocstyle
-	//CHOMPEdit End
 	infomorph.apply_vore_prefs() //Cheap hack for now to give them SOME bellies.
 
 	//Don't set 'real_name' because then we get a nice (as sleevecard) thing.
@@ -102,8 +100,8 @@
 	// Software we have not bought
 	var/list/not_bought_software = list()
 
-	for(var/key in pai_software_by_key)
-		var/datum/pai_software/S = pai_software_by_key[key]
+	for(var/key in GLOB.pai_software_by_key)
+		var/datum/pai_software/S = GLOB.pai_software_by_key[key]
 		var/software_data[0]
 		if(istype(S, /datum/pai_software/directives) && !emagged)
 			continue

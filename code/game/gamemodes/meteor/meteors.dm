@@ -1,4 +1,4 @@
-/var/const/meteor_wave_delay = 625 //minimum wait between waves in tenths of seconds
+GLOBAL_VAR_INIT(meteor_wave_delay, 625) //minimum wait between waves in tenths of seconds
 //set to at least 100 unless you want evarr ruining every round
 
 //Meteors probability of spawning during a given wave
@@ -38,13 +38,13 @@
 ///////////////////////////////
 
 /proc/spawn_meteors(var/number = 10, var/list/meteortypes, var/startSide, var/zlevel)
-	log_debug("Spawning [number] meteors on the [dir2text(startSide)] of [zlevel]")
+	log_game("Spawning [number] meteors on the [dir2text(startSide)] of [zlevel]")
 	for(var/i = 0; i < number; i++)
 		spawn_meteor(meteortypes, startSide, zlevel)
 
 /proc/spawn_meteor(var/list/meteortypes, var/startSide, var/startLevel)
 	if(isnull(startSide))
-		startSide = pick(cardinal)
+		startSide = pick(GLOB.cardinal)
 	if(isnull(startLevel))
 		startLevel = pick(using_map.station_levels - using_map.sealed_levels)
 
@@ -156,13 +156,21 @@
 	SpinAnimation()
 
 /obj/effect/meteor/Bump(atom/A)
-	if(attempt_vr(src,"Bump_vr",list(A))) return //VOREStation Edit - allows meteors to be deflected by baseball bats
-	if(A)
-		if(A.handle_meteor_impact(src)) // Used for special behaviour when getting hit specifically by a meteor, like a shield.
-			ram_turf(get_turf(A))
-			get_hit()
-		else
-			die(FALSE)
+	if(!A)
+		return
+	if(istype(A, /mob/living/carbon))
+		var/mob/living/carbon/batter = A
+		var/obj/item/I = batter.get_active_hand()
+		if(!batter.stat && istype(I, /obj/item/material/twohanded/baseballbat))
+			batter.do_attack_animation(src)
+			batter.visible_message("[batter] deflects [src] with [I]]! Home run!", "You deflect [src] with [I]! Home run!")
+			walk_away(src, batter, 100, 1)
+			return
+	if(A.handle_meteor_impact(src)) // Used for special behaviour when getting hit specifically by a meteor, like a shield.
+		ram_turf(get_turf(A))
+		get_hit()
+		return
+	die(FALSE)
 
 /obj/effect/meteor/CanPass(atom/movable/mover, turf/target)
 	return istype(mover, /obj/effect/meteor) ? TRUE : ..()
@@ -224,7 +232,7 @@
 		O.throw_at(dest, 5, 10)
 
 /obj/effect/meteor/proc/shake_players()
-	for(var/mob/M in player_list)
+	for(var/mob/M in GLOB.player_list)
 		var/turf/T = get_turf(M)
 		if(!T || T.z != src.z)
 			continue

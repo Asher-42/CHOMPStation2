@@ -31,7 +31,7 @@
 	update_icons_body()
 
 	if(H.robotic)
-		var/datum/robolimb/robohead = all_robolimbs[H.model]
+		var/datum/robolimb/robohead = GLOB.all_robolimbs[H.model]
 		if(robohead.monitor_styles && robohead.monitor_icon)
 			to_chat(src, span_notice("You reconfigure the rendering order of your facial display."))
 
@@ -176,7 +176,7 @@
 		var/score2 = (scale2 * strength2)
 
 		var/competition = pick(score1;player1, score2;player2)
-		if(!do_after(player1, 50, player2, exclusive = TASK_USER_EXCLUSIVE))
+		if(!do_after(player1, 5 SECONDS, target = player2))
 			player2.visible_message(span_notice("The players cancelled their competition!"))
 			return 0
 		if(!hand_games_check(player1,player2))
@@ -223,7 +223,7 @@
 		var/score2 = (scale2 * strength2)
 
 		var/competition = pick(score1;player1, score2;player2)
-		if(!do_after(player1, 10, player2, exclusive = TASK_USER_EXCLUSIVE))
+		if(!do_after(player1, 1 SECOND, target = player2))
 			player2.visible_message(span_notice("The players cancelled their competition!"))
 			return 0
 		if(!hand_games_check(player1,player2))
@@ -248,7 +248,7 @@
 		if(!hand_games_check(player1,player2))
 			return
 		player1.visible_message(span_notice("[player1] challenges [player2] to a thumb war!"))
-		if(!do_after(player1, 50, player2, exclusive = TASK_USER_EXCLUSIVE))
+		if(!do_after(player1, 5 SECONDS, target = player2))
 			player2.visible_message(span_notice("The players cancelled their thumb war!"))
 			return 0
 		if(!hand_games_check(player1,player2))
@@ -257,3 +257,37 @@
 			player1.visible_message(span_notice("After a gruelling battle, [player1] eventually manages to subdue the thumb of [player2]!"))
 		else
 			player2.visible_message(span_notice("After a gruelling battle, [player2] eventually manages to subdue the thumb of [player1]!"))
+
+///Play dead for sparkledog memes
+
+/mob/living/carbon/human/proc/play_dead()
+	set name = "Play Dead"
+	set desc = "Literally just die on the spot. It's okay, you can get better."
+	set category = "Abilities.Sparkledog"
+
+	if(stat)
+		to_chat(src, span_warning("You're too messed up right now to act all messed up, it's, like, for real."))
+		return
+
+	if(!resting)
+		SetResting(1)
+		add_modifier(/datum/modifier/play_dead, null, src) //Tracks whether they are still resting to remove the status indicator
+		add_status_indicator("dead")
+		visible_message(span_warning("\The [src] literally just dies!"))
+	else
+		SetResting(0)
+
+/datum/modifier/play_dead
+	name = "playing dead"
+	desc = "You are are pretending to be dead, you aren't very convincing!"
+	on_created_text = span_notice("You begin to play dead!")
+	on_expired_text = span_notice("You got better.")
+
+/datum/modifier/play_dead/tick()
+	if(!holder.resting)
+		expire()
+
+/datum/modifier/play_dead/expire()
+	holder.remove_status_indicator("dead")
+	holder.visible_message(span_warning("\The [src] literally just dies!"))
+	..()

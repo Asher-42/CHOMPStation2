@@ -197,24 +197,37 @@
 	flags = WHITELISTED
 
 /datum/language/echosong/broadcast(var/mob/living/speaker, var/message, var/speaker_mask)
-	log_say("(INAUDIBLE) [message]", speaker)
+	speaker.log_talk("(INAUDIBLE) [message]", LOG_SAY)
 	speaker.say_signlang(format_message(message), pick(signlang_verb), pick(signlang_verb_understood), src, 2)
 
 /datum/language/unathi
-	flags = 0
+	flags = NONE
 /datum/language/tajaran
-	flags = 0
+	flags = NONE
 /datum/language/skrell
-	flags = 0
+	flags = NONE
 /datum/language/teshari
-	flags = 0
+	flags = NONE
 /datum/language/zaddat
-	flags = 0
+	flags = NONE
 /datum/language/human
-	flags = 0
+	flags = NONE
 /datum/language/gutter
 	machine_understands = FALSE
 	desc = "A dialect of Tradeband not uncommon amongst traders in the Free Trade Union. The language is often difficult to translate due to changing frequently and being highly colloquial."
 	partial_understanding = list(LANGUAGE_TRADEBAND = 30, LANGUAGE_SOL_COMMON = 10)
 /datum/language/human/animal
 	flags = RESTRICTED
+
+/datum/language/sparkle
+	name = LANGUAGE_SPARKLE
+	desc = "Eeeeeeeeeeeeee."
+	speech_verb = "says"
+	ask_verb = "asks"
+	exclaim_verb = "squeals"
+	colour = "rainbow"
+	key = "Z"
+	syllables = list(
+		"lol", "lmao", "rofl", "rawr", "XD", "eeeee", "hehe", "lolz", "0_o", ":>", "l1k3", "mudk1pz", "l33t", "br00tal", "hXc", "wtf", "pwn"
+	)
+	flags = WHITELISTED

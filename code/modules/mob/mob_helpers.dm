@@ -57,9 +57,6 @@
 /mob/proc/is_cloaked()
 	return FALSE
 
-/proc/hasorgans(A) // Fucking really??
-	return ishuman(A)
-
 /proc/iscuffed(A)
 	if(istype(A, /mob/living/carbon))
 		var/mob/living/carbon/C = A
@@ -131,11 +128,22 @@
 
 	return ran_zone
 
-// Emulates targetting a specific body part, and miss chances
-// May return null if missed
-// miss_chance_mod may be negative.
-/proc/get_zone_with_miss_chance(zone, var/mob/target, var/miss_chance_mod = 0, var/ranged_attack=0, var/force_hit = FALSE)
+/// Hit and miss chance is calculated here.
+/// Returns: null(miss) or zone(hit)
+/// Has a variety of toggles. In short:
+/// always_hit: Miss chance is not calculateed. Always hit the zone it's targeting. (Default: FALSE)
+/// user_misses: If Player Characters are subjected to RNG hitchance on other Player Characters (Default: FALSE)
+/// mob_misses: If mobs are subjected to RNG hitchance on Player Characters (Default: TRUE)
+/proc/get_zone_with_miss_chance(zone, mob/target, miss_chance_mod = 0, ranged_attack=0, force_hit = FALSE, atom/movable/attacker)
 	zone = check_zone(zone)
+
+
+	/// Toggle for servers that desire to have attacks ALWAYS hit, since force_hit isn't always its default.
+	/// NOTE: This means that mobs will ALWAYS hit players and leads to much more punishing combat.
+	/// The system as is gives players an edge in PvE, while enabling always_hit gives mobs an edge in PvE.
+	var/always_hit = FALSE
+	if(always_hit)
+		return zone
 
 	if(!ranged_attack)
 		// you cannot miss if your target is prone or restrained
@@ -149,18 +157,76 @@
 	if(force_hit)
 		return zone
 
-	var/miss_chance = 10
-	if (zone in base_miss_chance)
-		miss_chance = base_miss_chance[zone]
-	if (zone == "eyes" || zone == "mouth")
-		miss_chance = base_miss_chance["head"]
-	// miss_chance = max(miss_chance + miss_chance_mod, 0) CHOMPEDIT - removing baymiss
-	if(prob(miss_chance_mod)) //CHOMPADD - removing baymiss. Checking the miss chance for legacy. This should only be affected by special cases and evasion.
+	//This is done here now, since previously it was just done in a dumb spot that made no sense.
+	//Even if you were Neo, anyone could land a blow on you.
+	var/has_evasion_chance = FALSE
+	if(isliving(target))
+		var/mob/living/our_target = target
+		var/evasion_chance = our_target.get_evasion()
+
+		if(!evasion_chance && !target.client) //If our target HAS no evasion chance and they're an NPC, we hit.
+			return zone
+		if(evasion_chance)
+			has_evasion_chance = TRUE
+			miss_chance_mod += evasion_chance
+	//However, get_accuracy_penalty() is also used in eyestab, open-hand clicking someone, and resolve_item_attack()
+	//The big one is resolve_item_attack(). It's the 'we are hit in melee combat'
+	//We are unable to include it here as it is dependent on the attacker, so we'll let it just continue being calculated where it is.
+
+	if(has_evasion_chance && miss_chance_mod > 0 && prob(miss_chance_mod))
 		return null
-	if(prob(miss_chance))
-		//if(prob(70))
-		//	return null	CHOMPEDIT - removing baymiss
-		return pick(base_miss_chance)
+
+	if(!target.client) //If the target is an NPC, we will always hit (barring extreme circumstances like mobs having modified evasion, handled above). Removes baymiss against mobs.
+		return zone
+
+
+	/// Toggle if you desire to have it so things like claymores, mines, and turrets ALWAYS will hit their selected zone & are not subject to RNG miss chance.
+	/// By default, this is set to FALSE. If toggled to TRUE, non living entities will ALWAYS hit 100% of the time.
+	var/non_living_always_hits = FALSE
+	if(isliving(attacker))
+		var/mob/living/living_attacker = attacker
+
+		/// Toggle for servers that desire to have players able to miss each other.
+		/// This is if users are subjected to the same RNG hitchance against other players as mobs are.
+		/// By default, this is set to off, as evasion being calculated is (in my eyes) enough for PvP combat.
+		/// However, if you wish to enable it so there's miss chance, flip this FALSE to TRUE
+		var/user_misses = FALSE
+		if(!user_misses && living_attacker.client)
+			return zone
+
+		/// Toggle for servers that desire to have mobs able to miss players. By default is set to TRUE
+		/// If toggled on, mobs will have chances to miss players.
+		/// If toggled off, mobs will always hit each players, evasion-not-withstanding
+		/// This can make PvE combat feel better for players or introduce some randomization with PvP.
+		var/mob_misses = TRUE //Toggle to enable mob missing or not.
+		if(!mob_misses && !living_attacker.client) //If mob_misses is disabled, they land their blow on the zone they're targeting.
+			return zone
+
+	else if(non_living_always_hits) //Warning: This will make things like frag mines ANNIHILATE people without evasion.
+		return zone
+	else if(!has_evasion_chance && prob(miss_chance_mod)) //Only take miss chance into account when we have no evasion IF the attacker is non-living (turret/mine/claymore).
+		return null //They missed.
+
+
+	//However, if a mob IS attacking a player, let's throw in some RNG into the mix to make it feel better for players.
+	//If a mob eats hits and dies, people are happy.
+	//If you shoot a mob point blank 10 times and every hit misses, people are upset (and rightfully so)
+	var/randomization_chance = 10 //This can also be set to 0 to ensure mobs ALWAYS target the limb they're originally targeting.
+	/// First, we roll to see if we're going to target a random limb.
+	if(randomization_chance) //We got a 10% chance! Randomize where we're targeting!
+		zone = pick(base_miss_chance)
+
+	// Second, we make sure to see if the place we are attacking is a valid area.
+	if(zone in base_miss_chance)
+		randomization_chance = base_miss_chance[zone]
+
+	// Eyes and mouth can be targeted (although typically not by mobs) so we set it to the head.
+	else if (zone == "eyes" || zone == "mouth")
+		randomization_chance = base_miss_chance["head"]
+
+	// Finally, now that we have our newfound zone, we see if we miss it or not!
+	if(prob(randomization_chance)) //If the mob rolled a miss chance?
+		return null //No hit! Player escapes unscathed!
 	return zone
 
 
@@ -257,7 +323,7 @@
 
 			var/rand_set = list("#","@","*","&","%","$","/", "<", ">", ";","*","*","*","*","*","*","*")
 			if(p >= 80)
-				rand_set += alphabet_uppercase
+				rand_set += GLOB.alphabet_upper
 			for(var/j = 1, j <= rand(0, 2), j++)
 				letter += pick(rand_set)
 
@@ -312,7 +378,7 @@ It's fairly easy to fix if dealing with single letters but not so much with comp
 	animate(pixel_x = oldx, pixel_y = oldy, time = 1)
 
 /proc/findname(msg)
-	for(var/mob/M in mob_list)
+	for(var/mob/M in GLOB.mob_list)
 		if (M.real_name == text("[msg]"))
 			return 1
 	return 0
@@ -322,7 +388,6 @@ It's fairly easy to fix if dealing with single letters but not so much with comp
 	return 0
 
 //converts intent-strings into numbers and back
-var/list/intents = list(I_HELP,I_DISARM,I_GRAB,I_HURT)
 /proc/intent_numeric(argument)
 	if(istext(argument))
 		switch(argument)
@@ -376,7 +441,7 @@ var/list/intents = list(I_HELP,I_DISARM,I_GRAB,I_HURT)
 
 /proc/mobs_in_area(var/area/A)
 	var/list/mobs = list()
-	for(var/M in mob_list)
+	for(var/M in GLOB.mob_list)
 		if(get_area(M) == A)
 			mobs += M
 	return mobs
@@ -395,21 +460,22 @@ var/list/intents = list(I_HELP,I_DISARM,I_GRAB,I_HURT)
 			var/realname = C.mob.real_name
 			if(C.mob.mind)
 				mindname = C.mob.mind.name
-				if(C.mob.mind.original && C.mob.mind.original.real_name)
-					realname = C.mob.mind.original.real_name
+				var/mob/living/original = C.mob.mind.original_character?.resolve()
+				if(original && original.real_name)
+					realname = original.real_name
 			if(mindname && mindname != realname)
 				name = "[realname] died as [mindname]"
 			else
 				name = realname
 
-	if(subject && subject.forbid_seeing_deadchat && !subject.client.holder)
+	if(subject && subject.forbid_seeing_deadchat && !check_rights_for(subject.client, R_HOLDER))
 		return // Can't talk in deadchat if you can't see it.
 
-	for(var/mob/M in player_list)
-		if(M.client && ((!isnewplayer(M) && M.stat == DEAD) || (M.client.holder && check_rights_for(M.client, R_NONE) && M.client?.prefs?.read_preference(/datum/preference/toggle/holder/show_staff_dsay))) && M.client?.prefs?.read_preference(/datum/preference/toggle/show_dsay))
+	for(var/mob/M in GLOB.player_list)
+		if(M.client && ((!isnewplayer(M) && M.stat == DEAD) || (check_rights_for(M.client, R_HOLDER) && M.client?.prefs?.read_preference(/datum/preference/toggle/holder/show_staff_dsay))) && M.client?.prefs?.read_preference(/datum/preference/toggle/show_dsay))
 			var/follow
 			var/lname
-			if(M.forbid_seeing_deadchat && !M.client.holder)
+			if(M.forbid_seeing_deadchat && !check_rights_for(M.client, R_HOLDER))
 				continue
 
 			if(subject)
@@ -417,12 +483,12 @@ var/list/intents = list(I_HELP,I_DISARM,I_GRAB,I_HURT)
 					continue
 				if(subject != M)
 					follow = "([ghost_follow_link(subject, M)]) "
-				if(M.stat != DEAD && M.client.holder)
-					follow = "([admin_jump_link(subject, M.client.holder)]) "
+				if(M.stat != DEAD && check_rights_for(M.client, R_HOLDER))
+					follow = "([admin_jump_link(subject, check_rights_for(M.client, R_HOLDER))]) "
 				var/mob/observer/dead/DM
 				if(isobserver(subject))
 					DM = subject
-				if(M.client.holder) 							// What admins see
+				if(check_rights_for(M.client, R_HOLDER)) 							// What admins see
 					lname = "[keyname][(DM && DM.anonsay) ? "*" : (DM ? "" : "^")] ([name])"
 				else
 					if(DM && DM.anonsay)						// If the person is actually observer they have the option to be anonymous
@@ -435,18 +501,18 @@ var/list/intents = list(I_HELP,I_DISARM,I_GRAB,I_HURT)
 			to_chat(M, span_deadsay("" + create_text_tag("dead", "DEAD:", M.client) + " [lname][follow][message]"))
 
 /proc/say_dead_object(var/message, var/obj/subject = null)
-	for(var/mob/M in player_list)
-		if(M.client && ((!isnewplayer(M) && M.stat == DEAD) || (M.client.holder && check_rights_for(M.client, R_NONE) && M.client?.prefs?.read_preference(/datum/preference/toggle/holder/show_staff_dsay))) && M.client?.prefs?.read_preference(/datum/preference/toggle/show_dsay))
+	for(var/mob/M in GLOB.player_list)
+		if(M.client && ((!isnewplayer(M) && M.stat == DEAD) || (check_rights_for(M.client, R_HOLDER) && M.client?.prefs?.read_preference(/datum/preference/toggle/holder/show_staff_dsay))) && M.client?.prefs?.read_preference(/datum/preference/toggle/show_dsay))
 			var/follow
 			var/lname = "Game Master"
-			if(M.forbid_seeing_deadchat && !M.client.holder)
+			if(M.forbid_seeing_deadchat && !check_rights_for(M.client, R_HOLDER))
 				continue
 
 			if(subject)
 				lname = "[subject.name] ([subject.x],[subject.y],[subject.z])"
 
 			lname = span_name("[lname]") + " "
-			to_chat(M, span_deadsay("" + create_text_tag("event_dead", "EVENT:", M.client) + " [lname][follow][message]"))
+			to_chat(M, span_deadsay(create_text_tag("event_dead", "EVENT:", M.client) + " [lname][follow][message]"))
 
 //Announces that a ghost has joined/left, mainly for use with wizards
 /proc/announce_ghost_joinleave(O, var/joined_ghosts = 1, var/message = "")
@@ -460,10 +526,11 @@ var/list/intents = list(I_HELP,I_DISARM,I_GRAB,I_HURT)
 		C = O
 	else if(istype(O, /datum/mind))
 		var/datum/mind/M = O
+		var/mob/living/original = M.original_character?.resolve()
 		if(M.current && M.current.client)
 			C = M.current.client
-		else if(M.original && M.original.client)
-			C = M.original.client
+		else if(original && original.client)
+			C = original.client
 
 	if(C)
 		var/name
@@ -488,9 +555,8 @@ var/list/intents = list(I_HELP,I_DISARM,I_GRAB,I_HURT)
 
 
 /mob/proc/switch_to_camera(var/obj/machinery/camera/C)
-	if (!C.can_use() || stat || (get_dist(C, src) > 1 || machine != src || blinded || !canmove))
+	if (!C.can_use() || stat || (get_dist(C, src) > 1 || !check_current_machine(src) || blinded || !canmove))
 		return 0
-	check_eye(src)
 	return 1
 
 /mob/living/silicon/ai/switch_to_camera(var/obj/machinery/camera/C)
@@ -638,20 +704,26 @@ var/list/global/organ_rel_size = list(
 	BP_R_FOOT = 10,
 )
 
-/mob/proc/flash_eyes(intensity = FLASH_PROTECTION_MODERATE, override_blindness_check = FALSE, affect_silicon = FALSE, visual = FALSE, type = /obj/screen/fullscreen/flash)
+/mob/proc/flash_eyes(intensity = FLASH_PROTECTION_MODERATE, override_blindness_check = FALSE, affect_silicon = FALSE, visual = FALSE, type = /atom/movable/screen/fullscreen/flash)
 	return
 
 //Recalculates what planes this mob can see using their plane_holder, for humans this is checking slots, for others, could be whatever.
 /mob/proc/recalculate_vis()
 	return
 
-//General HUD updates done regularly (health puppet things, etc)
+/// General HUD updates done regularly (health puppet things, etc). Returns true if the mob has a client and is allowed to update its hud.
 /mob/proc/handle_regular_hud_updates()
-	return
+	SHOULD_CALL_PARENT(TRUE)
+	if(!client)
+		return FALSE
+	if(SEND_SIGNAL(src,COMSIG_LIVING_HANDLE_HUD) & COMSIG_COMPONENT_HANDLED_HUD)
+		return FALSE
+	return TRUE
 
-//Handle eye things like the Byond SEE_TURFS, SEE_OBJS, etc.
+/// Handle eye things like the Byond SEE_TURFS, SEE_OBJS, etc.
 /mob/proc/handle_vision()
-	return
+	SHOULD_CALL_PARENT(TRUE)
+	SEND_SIGNAL(src,COMSIG_LIVING_HANDLE_VISION)
 
 //Icon is used to occlude things like huds from the faulty byond context menu.
 //   http://www.byond.com/forum/?post=2336679

@@ -12,10 +12,12 @@ export type Belly = {
   // General Information
   name: string;
   desc: string;
+  display_name: string;
   message_mode: BooleanLike;
   absorbed_desc: string;
   vore_verb: string;
   release_verb: string;
+  prevent_saving: BooleanLike;
 
   // Controls
   mode: string;
@@ -28,6 +30,7 @@ export type Belly = {
   digest_oxy: number;
   digest_tox: number;
   digest_clone: number;
+  bellytemperature: number;
 
   can_taste: BooleanLike;
   is_feedable: BooleanLike;
@@ -51,6 +54,7 @@ export type Belly = {
   storing_nutrition: BooleanLike;
   entrance_logs: BooleanLike;
   item_digest_logs: BooleanLike;
+  temperature_damage: BooleanLike;
 
   // Messages
   struggle_messages_outside: string[];
@@ -94,6 +98,9 @@ export type Belly = {
   unabsorb_messages_prey: string[];
   examine_messages: string[];
   examine_messages_absorbed: string[];
+  trash_eater_in: string[];
+  trash_eater_out: string[];
+  displayed_message_flags: number;
 
   // emote_list: string[];
   emotes_digest: string[];
@@ -231,3 +238,13 @@ export type Soulcatcher = {
   linked_belly: string;
   setting_flags: number;
 };
+
+type Formatter<T> = (val: T) => string;
+
+export type SettingItem<T = any> = {
+  label: string;
+  value: T;
+  formatter?: Formatter<T>;
+};
+
+export type EmoteEntry = { label: string; messages?: string[] };

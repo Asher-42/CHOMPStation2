@@ -10,7 +10,7 @@
 	plane = MOB_PLANE
 	layer = ABOVE_MOB_LAYER
 	density = TRUE
-	invisibility = 0
+	invisibility = INVISIBILITY_NONE
 	var/obj/machinery/power/shield_generator/gen = null // Owning generator
 	var/disabled_for = 0
 	var/diffused_for = 0
@@ -214,7 +214,7 @@
 
 
 // EMP. It may seem weak but keep in mind that multiple shield segments are likely to be affected.
-/obj/effect/shield/emp_act(var/severity)
+/obj/effect/shield/emp_act(severity, recursive)
 	if(!disabled_for)
 		take_damage(rand(30,60) / severity, SHIELD_DAMTYPE_EM)
 

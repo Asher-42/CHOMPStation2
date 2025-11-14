@@ -48,17 +48,17 @@
 
 	player_msg = "In this form, your health will regenerate as long as you have metal in you."
 
-	can_buckle = 1
-	buckle_lying = 1
+	can_buckle = TRUE
+	buckle_lying = TRUE
 	mount_offset_x = 0
 	mount_offset_y = 0
-	has_hands = 1
-	shock_resist = 1
-	nameset = 1
+	has_hands = TRUE
+	shock_resist = TRUE
+	nameset = TRUE
 	holder_type = /obj/item/holder/protoblob
-	var/hiding = 0
-	vore_icons = 1
-	vore_active = 1
+	var/hiding = FALSE
+	vore_icons = TRUE
+	vore_active = TRUE
 
 	plane = ABOVE_MOB_PLANE	//Necessary for overlay based icons
 
@@ -68,24 +68,25 @@
 	emote_see = list("shifts wetly","undulates placidly")
 
 //Constructor allows passing the human to sync damages
-/mob/living/simple_mob/protean_blob/New(var/newloc, var/mob/living/carbon/human/H)
-	..()
-	if(H)
-		humanform = H
-		updatehealth()
-		refactory = locate() in humanform.internal_organs
-		// add_verb(src,/mob/living/proc/ventcrawl) // CHOMPRemove
-		add_verb(src,/mob/living/proc/usehardsuit)
-		add_verb(src,/mob/living/simple_mob/protean_blob/proc/nano_partswap)
-		add_verb(src,/mob/living/simple_mob/protean_blob/proc/nano_regenerate)
-		add_verb(src,/mob/living/simple_mob/protean_blob/proc/nano_metalnom)
-		add_verb(src,/mob/living/simple_mob/protean_blob/proc/nano_blobform)
-		add_verb(src,/mob/living/simple_mob/protean_blob/proc/nano_rig_transform)
-		add_verb(src,/mob/living/simple_mob/protean_blob/proc/appearance_switch)
-		add_verb(src,/mob/living/simple_mob/protean_blob/proc/nano_latch)
-		remove_verb(src,/mob/living/simple_mob/proc/nutrition_heal) // CHOMPAdd
-	else
-		update_icon()
+/mob/living/simple_mob/protean_blob/Initialize(mapload, var/mob/living/carbon/human/H)
+	. = ..()
+	if(!H)
+		stack_trace("URGENT: A protean blob was created without a humanform! src = [src] ckey = [ckey]! The blob has been deleted.")
+		return INITIALIZE_HINT_QDEL
+
+	humanform = H
+	calculate_health()
+	refactory = locate() in humanform.internal_organs
+	// add_verb(src,/mob/living/proc/ventcrawl) // CHOMPRemove
+	add_verb(src,/mob/living/proc/usehardsuit)
+	add_verb(src,/mob/living/simple_mob/protean_blob/proc/nano_partswap)
+	add_verb(src,/mob/living/simple_mob/protean_blob/proc/nano_regenerate)
+	add_verb(src,/mob/living/simple_mob/protean_blob/proc/nano_metalnom)
+	add_verb(src,/mob/living/simple_mob/protean_blob/proc/nano_blobform)
+	add_verb(src,/mob/living/simple_mob/protean_blob/proc/nano_rig_transform)
+	add_verb(src,/mob/living/simple_mob/protean_blob/proc/appearance_switch)
+	add_verb(src,/mob/living/simple_mob/protean_blob/proc/nano_latch)
+	remove_verb(src,/mob/living/simple_mob/proc/nutrition_heal) // CHOMPAdd
 	add_verb(src,/mob/living/simple_mob/proc/animal_mount)
 	add_verb(src,/mob/living/proc/toggle_rider_reins)
 
@@ -182,7 +183,7 @@
 /mob/living/simple_mob/protean_blob/speech_bubble_appearance()
 	return "synthetic"
 
-/mob/living/simple_mob/protean_blob/init_vore()
+/mob/living/simple_mob/protean_blob/init_vore(force)
 	return //Don't make a random belly, don't waste your time
 
 /mob/living/simple_mob/protean_blob/isSynthetic()
@@ -200,21 +201,26 @@
 
 /mob/living/simple_mob/protean_blob/updatehealth()
 	if(!humanform)
-		CRASH("A protean blob does not have a humanform! src = [src] ckey = [ckey]")
+		to_chat(src, span_giant(span_boldwarning("You are currently a blob without a humanform and should be deleted shortly Please report what you were doing when this error occurred to the admins.")))
+		stack_trace("URGENT, SERVER-CRASHING ISSUE: A protean blob does not have a humanform! src = [src] ckey = [ckey]! The blob has been deleted.")
+		qdel(src)
+		return
 	if(humanform.nano_dead_check(src))
 		return
+	calculate_health()
+	//Alive, becoming dead
+	if((stat < DEAD) && (health <= 0))
+		humanform.death()
 
+/mob/living/simple_mob/protean_blob/proc/calculate_health()
 	//Set the max
 	maxHealth = humanform.getMaxHealth()*2 //HUMANS, and their 'double health', bleh.
 	human_brute = humanform.getActualBruteLoss()
 	human_burn = humanform.getActualFireLoss()
 	health = maxHealth - humanform.getOxyLoss() - humanform.getToxLoss() - humanform.getCloneLoss() - humanform.getBruteLoss() - humanform.getFireLoss()
 
-	//Alive, becoming dead
-	if((stat < DEAD) && (health <= 0))
-		humanform.death()
-
 	nutrition = humanform.nutrition
+
 
 	//Overhealth
 	if(health > getMaxHealth())
@@ -291,9 +297,9 @@
 	else
 		return ..()
 
-/mob/living/simple_mob/protean_blob/emp_act(severity)
+/mob/living/simple_mob/protean_blob/emp_act(severity, recursive)
 	if(humanform)
-		return humanform.emp_act(severity)
+		return humanform.emp_act(severity, recursive)
 	else
 		return ..()
 
@@ -318,16 +324,15 @@
 		return ..()
 
 /mob/living/simple_mob/protean_blob/death(gibbed, deathmessage = "Coalesces inwards, retreating into their core componants")
-	if(humanform)
-		humanform.death(gibbed, deathmessage)
-	else
-		animate(src, alpha = 0, time = 2 SECONDS)
-		sleep(2 SECONDS)
+	humanform.death(gibbed, deathmessage)
 
 /mob/living/simple_mob/protean_blob/Life()
 	. = ..()
 	if(!humanform)
-		CRASH("A protean_blob calling Life() has no humanform! Src = [src] ckey = [ckey]")
+		to_chat(src, span_giant(span_boldwarning("You are currently a blob without a humanform and should be deleted shortly Please report what you were doing when this error occurred to the admins.")))
+		stack_trace("URGENT, SERVER-CRASHING ISSUE: A protean blob does not have a humanform! src = [src] ckey = [ckey]!")
+		qdel(src)
+		return
 	if(!humanform.nano_dead_check(src))
 		if(. && istype(refactory) && humanform)
 			if(!healing && (human_brute || human_burn) && refactory.get_stored_material(MAT_STEEL) >= 100)
@@ -380,11 +385,11 @@
 			var/list/potentials = living_mobs(0)
 			if(potentials.len)
 				var/mob/living/target = pick(potentials)
-				if(istype(target) && target.devourable && target.can_be_drop_prey && vore_selected)
+				if(can_spontaneous_vore(src, target))
 					if(target.buckled)
 						target.buckled.unbuckle_mob(target, force = TRUE)
 					target.forceMove(vore_selected)
-					to_chat(target,span_warning("\The [src] quickly engulfs you, [vore_selected.vore_verb]ing you into their [vore_selected.name]!"))
+					to_chat(target,span_warning("\The [src] quickly engulfs you, [vore_selected.vore_verb]ing you into their [vore_selected.get_belly_name()]!"))
 	update_canmove()
 
 /mob/living/simple_mob/protean_blob/update_canmove()
@@ -437,7 +442,7 @@
 		to_chat(src,span_warning("You can't change forms while inside something."))
 		return
 	to_chat(src, span_notice("You rapidly disassociate your form."))
-	if(force || do_after(src,20,exclusive = TASK_ALL_EXCLUSIVE))
+	if(force || do_after(src, 2 SECONDS, target = src))
 		handle_grasp() //It's possible to blob out before some key parts of the life loop. This results in things getting dropped at null. TODO: Fix the code so this can be done better.
 		remove_micros(src, src) //Living things don't fare well in roblobs.
 		if(buckled)
@@ -472,11 +477,9 @@
 		blob.ooc_notes = ooc_notes
 		blob.ooc_notes_likes = ooc_notes_likes
 		blob.ooc_notes_dislikes = ooc_notes_dislikes
-		// CHOMPAdd Start
 		blob.ooc_notes_favs = ooc_notes_favs
 		blob.ooc_notes_maybes = ooc_notes_maybes
 		blob.ooc_notes_style = ooc_notes_style
-		// CHOMPAdd End
 		temporary_form = blob
 		var/obj/item/radio/R = null
 		if(isradio(l_ear))
@@ -526,8 +529,8 @@
 		to_chat(src, span_warning("You must remain still to blobform!"))
 
 //For some reason, there's no way to force drop all the mobs grabbed. This ought to fix that. And be moved elsewhere. Call with caution, doesn't handle cycles.
-/proc/remove_micros(var/src, var/mob/root)
-	for(var/obj/item/I in src)
+/proc/remove_micros(var/source, var/mob/root)
+	for(var/obj/item/I in source)
 		remove_micros(I, root) //Recursion. I'm honestly depending on there being no containment loop, but at the cost of performance that can be fixed too.
 		if(istype(I, /obj/item/holder))
 			root.remove_from_mob(I)
@@ -553,7 +556,7 @@
 		to_chat(blob,span_warning("You can't change forms while inside something."))
 		return
 	to_chat(src, span_notice("You rapidly reassemble your form."))
-	if(force || do_after(blob,20,exclusive = TASK_ALL_EXCLUSIVE))
+	if(force || do_after(blob, 2 SECONDS, target = src))
 		if(buckled)
 			buckled.unbuckle_mob()
 		if(LAZYLEN(buckled_mobs))
@@ -604,11 +607,9 @@
 		ooc_notes = blob.ooc_notes // Lets give the protean any updated notes from blob form.
 		ooc_notes_likes = blob.ooc_notes_likes
 		ooc_notes_dislikes = blob.ooc_notes_dislikes
-		// CHOMPAdd Start
 		ooc_notes_favs = blob.ooc_notes_favs
 		ooc_notes_maybes = blob.ooc_notes_maybes
 		ooc_notes_style = blob.ooc_notes_style
-		// CHOMPAdd End
 		temporary_form = null
 
 		//Transfer vore organs
@@ -658,23 +659,14 @@
 			return 1
 	return 0
 
-//Don't eat yourself, idiot
-/mob/living/simple_mob/protean_blob/CanStumbleVore(mob/living/target)
-	if(target == humanform)
-		return FALSE
-	return ..()
-
-/mob/living/carbon/human/CanStumbleVore(mob/living/target)
-	if(istype(target, /mob/living/simple_mob/protean_blob))
-		var/mob/living/simple_mob/protean_blob/PB = target
-		if(PB.humanform == src)
-			return FALSE
-	return ..()
-
-/mob/living/simple_mob/protean_blob/handle_mutations_and_radiation()
+/mob/living/simple_mob/protean_blob/handle_radiation()
+	..()
 	if(!humanform)
-		CRASH("A protean blob does not have a humanform! src = [src] ckey = [ckey]")
-	humanform.handle_mutations_and_radiation()
+		to_chat(src, span_giant(span_boldwarning("You are currently a blob without a humanform and should be deleted shortly Please report what you were doing when this error occurred to the admins.")))
+		stack_trace("URGENT, SERVER-CRASHING ISSUE: A protean blob does not have a humanform! src = [src] ckey = [ckey]! The blob has been deleted.")
+		qdel(src)
+		return
+	humanform.handle_radiation()
 
 /mob/living/simple_mob/protean_blob/update_icon()
 	..()
@@ -800,6 +792,15 @@
 			I.layer = MOB_LAYER
 			add_overlay(I)
 			qdel(I)
+
+			I = image(icon, "[S.dullahan_overlays[7]][resting? "-rest" : (vore_fullness? "-[vore_fullness]" : null)]", pixel_x = -16)
+			I.color = S.dullahan_overlays[S.dullahan_overlays[7]]
+			I.appearance_flags |= (RESET_COLOR|PIXEL_SCALE)
+			I.plane = MOB_PLANE
+			I.layer = MOB_LAYER
+			add_overlay(I)
+			qdel(I)
+
 		//You know technically I could just put all the icons into the 128x64.dmi file and off-set them to fit..
 		if(S.blob_appearance in wide_icons)
 			icon = 'icons/mob/species/protean/protean64x32.dmi'

@@ -7,6 +7,7 @@ export type Data = {
 
 export type occupant = {
   name: string;
+  species: string;
   stat: number;
   health: number;
   maxHealth: number;
@@ -37,21 +38,24 @@ export type occupant = {
   objectPrey: number;
   weight: number;
   husked: BooleanLike;
+  hasWithdrawl: BooleanLike;
 };
 
 type reagent = { name: string; amount: number; overdose: BooleanLike };
 
 export type internalOrgan = {
   name: string;
-  desc: string | null;
-  germ_level: number;
-  damage: number;
-  maxHealth: number;
-  bruised: number;
-  broken: number;
+  desc?: string | null;
+  germ_level?: number;
+  damage?: number;
+  maxHealth?: number;
+  bruised?: number;
+  broken?: number;
   robotic: BooleanLike;
   dead: BooleanLike;
   inflamed: BooleanLike;
+  missing: BooleanLike;
+  medical_issues_I?: string[];
 };
 
 export type externalOrgan = {
@@ -76,4 +80,5 @@ export type externalOrgan = {
   };
   lungRuptured: BooleanLike;
   internalBleeding: BooleanLike;
+  medical_issues_E: string[];
 };

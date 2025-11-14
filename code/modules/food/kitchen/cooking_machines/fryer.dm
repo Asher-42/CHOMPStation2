@@ -31,6 +31,8 @@
 
 	stat = POWEROFF // Starts turned off
 
+	tgui_id = "CookingFryer"
+
 	var/datum/reagents/oil
 	var/optimal_oil = 9000 //90 litres of cooking oil
 
@@ -186,7 +188,7 @@
 
 	fry_loop.start(src)
 
-	if(!do_mob(user, victim, 20))
+	if(!do_after(user, 2 SECONDS, victim))
 		cooking = FALSE
 		icon_state = off_icon
 		fry_loop.stop(src)
@@ -209,7 +211,7 @@
 	if(ishuman(victim) && user.zone_sel.selecting != BP_GROIN && user.zone_sel.selecting != BP_TORSO)
 		var/mob/living/carbon/human/H = victim
 		E = H.get_organ(user.zone_sel.selecting)
-		if(!E || E.species.flags & NO_PAIN)
+		if(!E || E.data.get_species_flags() & NO_PAIN)
 			nopain = 2
 		else if(E.robotic >= ORGAN_ROBOT)
 			nopain = 1

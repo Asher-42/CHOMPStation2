@@ -96,13 +96,19 @@
 	take_damage(damage)
 	return
 
-/turf/simulated/wall/hitby(AM as mob|obj, var/speed=THROWFORCE_SPEED_DIVISOR)
+/turf/simulated/wall/hitby(atom/movable/source, var/speed=THROWFORCE_SPEED_DIVISOR)
 	..()
-	if(ismob(AM))
+	if(ismob(source))
 		return
-
-	var/tforce = AM:throwforce * (speed/THROWFORCE_SPEED_DIVISOR)
-	if (tforce < 15)
+	var/tforce = 0
+	if(isobj(source))
+		var/obj/object = source
+		if(isitem(object))
+			var/obj/item/our_item = object
+			tforce = our_item.throwforce * (speed/THROWFORCE_SPEED_DIVISOR)
+		else
+			tforce = object.w_class * (speed/THROWFORCE_SPEED_DIVISOR)
+	if(tforce < 15)
 		return
 
 	take_damage(tforce)
@@ -238,7 +244,7 @@
 	if(locate(/obj/effect/overlay/wallrot) in src)
 		return FALSE
 
-	// Wall-rot can't go onto walls that are surrounded in all four cardinal directions.
+	// Wall-rot can't go onto walls that are surrounded in all four GLOB.cardinal directions.
 	// Because of spores, or something. It's actually to avoid the pain that is removing wallrot surrounded by
 	// four r-walls.
 	var/at_least_one_open_turf = FALSE

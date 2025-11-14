@@ -11,7 +11,7 @@
 
 	var/obj/item/paper/internalPaper
 
-/obj/item/paperplane/Initialize(mapload, obj/item/paper/newPaper) //ChompEDIT New --> Initialize
+/obj/item/paperplane/Initialize(mapload, obj/item/paper/newPaper)
 	. = ..()
 	pixel_y = rand(-8, 8)
 	pixel_x = rand(-9, 9)
@@ -68,7 +68,7 @@
 				span_userdanger("You miss the [src] and accidentally light yourself on fire!"))
 			user.unEquip(P)
 			user.adjust_fire_stacks(1)
-			user.IgniteMob()
+			user.ignite_mob()
 			return
 
 		if(!(in_range(user, src))) //to prevent issues as a result of telepathically lighting a paper

@@ -3,10 +3,10 @@
 		RegisterSignal(parent, COMSIG_MOB_CLIENT_LOGIN, PROC_REF(create_mob_button))
 
 /datum/component/personal_crafting/proc/create_mob_button(mob/user, client/CL)
-	// SIGNAL_HANDLER
+	SIGNAL_HANDLER
 
 	var/datum/hud/H = user.hud_used
-	var/obj/screen/craft/C = new()
+	var/atom/movable/screen/craft/C = new()
 	C.icon = H.ui_style
 	C.color = H.ui_color
 	C.alpha = H.ui_alpha
@@ -366,7 +366,7 @@
 	return parts
 
 /datum/component/personal_crafting/proc/component_ui_interact(source, location, control, params, user)
-	// SIGNAL_HANDLER
+	SIGNAL_HANDLER
 
 	if(user == parent)
 		INVOKE_ASYNC(src, PROC_REF(tgui_interact), user)
@@ -527,7 +527,7 @@
 	learned_recipes |= R
 
 // Screen objects
-/obj/screen/craft
+/atom/movable/screen/craft
 	name = "crafting menu"
 	icon = 'icons/mob/screen/midnight.dmi'
 	icon_state = "craft"

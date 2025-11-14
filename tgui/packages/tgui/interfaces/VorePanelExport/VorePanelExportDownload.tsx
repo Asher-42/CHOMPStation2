@@ -14,6 +14,8 @@ export const downloadPrefs = (extension: string) => {
     return;
   }
 
+  const validBellies = bellies.filter((belly) => !belly.prevent_saving);
+
   const datesegment = getCurrentTimestamp();
 
   const filename = mob_name + datesegment + extension;
@@ -28,7 +30,7 @@ export const downloadPrefs = (extension: string) => {
           '<meta charset="utf-8">' +
           '<meta name="viewport" content="width=device-width, initial-scale=1">' +
           '<title>' +
-          bellies.length +
+          validBellies.length +
           ' Exported Bellies (DB_VER: ' +
           db_repo +
           '-' +
@@ -47,7 +49,7 @@ export const downloadPrefs = (extension: string) => {
         type: 'text/html',
       },
     );
-    bellies.forEach((belly, i) => {
+    validBellies.forEach((belly, i) => {
       blob = new Blob([blob, generateBellyString(belly, i)], {
         type: 'text/html',
       });
@@ -68,13 +70,19 @@ export const downloadPrefs = (extension: string) => {
     );
   }
 
+  const exportPayload = {
+    [mob_name]: {
+      version: db_version,
+      repo: db_repo,
+      bellies: validBellies,
+      soulcatcher: soulcatcher,
+    },
+  };
+
   if (extension === '.vrdb') {
-    blob = new Blob(
-      [JSON.stringify({ bellies: bellies, soulcatcher: soulcatcher })],
-      {
-        type: 'application/json',
-      },
-    );
+    blob = new Blob([JSON.stringify(exportPayload)], {
+      type: 'application/json',
+    });
   }
 
   Byond.saveBlob(blob, filename, extension);

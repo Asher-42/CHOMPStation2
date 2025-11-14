@@ -5,7 +5,7 @@
 	event_type = /datum/event2/event/wallrot
 
 /datum/event2/meta/wallrot/get_weight()
-	return (10 + metric.count_people_in_department(DEPARTMENT_ENGINEERING) * 10) / (times_ran + 1)
+	return (10 + GLOB.metric.count_people_in_department(DEPARTMENT_ENGINEERING) * 10) / (times_ran + 1)
 
 
 
@@ -18,10 +18,10 @@
 		var/turf/candidate = locate(rand(1, world.maxx), rand(1, world.maxy), pick(get_location_z_levels()) )
 		if(istype(candidate, /turf/simulated/wall))
 			origin = candidate
-			log_debug("Wall-rot event has chosen \the [origin] ([origin.loc]) as the origin for the wallrot infestation.")
+			log_game("Wall-rot event has chosen \the [origin] ([origin.loc]) as the origin for the wallrot infestation.")
 			return
 
-	log_debug("Wall-rot event failed to find a valid wall after one hundred tries. Aborting.")
+	log_game("Wall-rot event failed to find a valid wall after one hundred tries. Aborting.")
 	abort()
 
 /datum/event2/event/wallrot/announce()

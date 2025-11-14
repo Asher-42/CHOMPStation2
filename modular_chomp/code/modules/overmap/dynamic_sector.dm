@@ -15,7 +15,7 @@ GLOBAL_VAR_INIT(dynamic_sector_master, null)
 	name = "DO NOT USE IN MAPS"
 	known = FALSE
 	scannable = FALSE
-	invisibility = 101
+	invisibility = INVISIBILITY_ABSTRACT
 	in_space = FALSE //This prevents you from walking off the edge and getting soft-locked into the infinispace layer
 	scanner_desc = "You should not see this."
 	var/generated_z = FALSE
@@ -111,7 +111,7 @@ GLOBAL_VAR_INIT(dynamic_sector_master, null)
 	if(!index)
 		index = 1
 	testing("Checking if sector at [map_z[index]] has no players.")
-	for(var/mob/M in global.player_list)
+	for(var/mob/M in GLOB.player_list)
 		if(M != observer && (M.z == map_z[index]))
 			testing("There are people on it.")
 			return FALSE
@@ -130,7 +130,7 @@ GLOBAL_VAR_INIT(dynamic_sector_master, null)
 	unknown_state = "poi"
 	known = FALSE
 	scannable = TRUE
-	invisibility = 0
+	invisibility = INVISIBILITY_NONE
 	in_space = TRUE
 	map_z = list(null) // Override parent value
 	active_pois = null
@@ -194,7 +194,7 @@ GLOBAL_VAR_INIT(dynamic_sector_master, null)
 			my_index = i
 			parent.active_pois[i] = src
 			map_z[1] = parent.map_z[i]
-			map_sectors["[parent.map_z[i]]"] = src // Pass ownership of z-level to child, probably hacky and terribad, also mandatory for using forceMove() on shuttle landmarks
+			GLOB.map_sectors["[parent.map_z[i]]"] = src // Pass ownership of z-level to child, probably hacky and terribad, also mandatory for using forceMove() on shuttle landmarks
 			break // Terminate loop
 	if(!my_index) // No z-levels available
 		var/confirm = tgui_alert(user, "\[REDACTED\] matrix at capacity; a bluespace link must be permanently severed to stabilize this anomaly. Continue?", "Are you sure?", list("No", "Yes"))
@@ -204,14 +204,14 @@ GLOBAL_VAR_INIT(dynamic_sector_master, null)
 		if(my_index)
 			parent.active_pois[my_index] = src
 			map_z[1] = parent.map_z[my_index]
-			map_sectors["[parent.map_z[my_index]]"] = src
+			GLOB.map_sectors["[parent.map_z[my_index]]"] = src
 		else // Something went wrong, ideally due to all relevant z-levels containing players.
 			to_chat(user, "Unable to sever any bluespace link. All links likely contain living realspace entities.")
 			return
 
 	var/turf/T = locate(round(world.maxx/2), round(world.maxy/2), map_z[1]) // Find center turf, or near center for even-dimension maps.
 	if(!istype(T))
-		log_debug("Dynamic overmap POI found [T] instead of a valid turf.")
+		log_mapping("Dynamic overmap POI found [T] instead of a valid turf.")
 		return
 
 	// Move the shuttle landmarks.
@@ -238,7 +238,7 @@ GLOBAL_VAR_INIT(dynamic_sector_master, null)
 
 /obj/effect/overmap/visitable/dynamic/poi/proc/destroy_poi(mob/user)
 	if(!loaded) // Ideally this should never happen.
-		log_debug("Dynamic overmap POI tried to unload itself but is not loaded.")
+		log_mapping("Dynamic overmap POI tried to unload itself but is not loaded.")
 		return
 	if(!parent) // Also shouldn't happen.
 		log_and_message_admins("Dynamic overmap POI attempted to unload without a parent z-level.")
@@ -246,12 +246,12 @@ GLOBAL_VAR_INIT(dynamic_sector_master, null)
 		qdel(src)
 		return
 	if(!((my_index >= 1) && (my_index <= MAX_DYNAMIC_LEVELS))) // Make sure my_index is sane
-		log_debug("Dynamic overmap POI attempted to unload with an invalid index.")
+		log_mapping("Dynamic overmap POI attempted to unload with an invalid index.")
 		loaded = FALSE
 		qdel(src)
 		return
 
-	map_sectors["[parent.map_z[my_index]]"] = parent // Pass ownership back to parent.
+	GLOB.map_sectors["[parent.map_z[my_index]]"] = parent // Pass ownership back to parent.
 	parent.active_pois[my_index] = null
 	if(!LAZYLEN(map_z)) // If this is 0, how did we get this far?
 		log_and_message_admins("Dynamic overmap POI attempted to unload without a linked z-level.")
@@ -260,7 +260,7 @@ GLOBAL_VAR_INIT(dynamic_sector_master, null)
 		return
 
 	to_chat(user, "Destabilization initiated...")
-	log_debug("Dynamic overmap POI unloading initiated...")
+	log_mapping("Dynamic overmap POI unloading initiated...")
 	// Some math to return a block of block_size turfs (+ 1 to each dimension to account for even-size maps lacking a true center to safely do math with). Basically, start from center turf and subtract half of block_size for bottom left corner, add for top right corner.
 	var/list/turfs_to_reset = block(locate(round(world.maxx/2 - my_template.block_size/2 - 1), round(world.maxy/2 - my_template.block_size/2 - 1), map_z[1]), locate(round(world.maxx/2 + my_template.block_size/2 + 1), round(world.maxy/2 + my_template.block_size/2 + 1), map_z[1]))
 	var/deleted_atoms = 0
@@ -282,7 +282,7 @@ GLOBAL_VAR_INIT(dynamic_sector_master, null)
 	loaded = FALSE
 	map_z = null
 	icon_state = "ring_destroyed"
-	log_debug("Dynamic POI unload complete, [deleted_atoms] atoms destroyed.")
+	log_mapping("Dynamic POI unload complete, [deleted_atoms] atoms destroyed.")
 	to_chat(user, "Subspace pocket collapse successful.")
 	qdel(src)
 
@@ -292,7 +292,7 @@ GLOBAL_VAR_INIT(dynamic_sector_master, null)
 			destroy_poi()
 		else
 			if(parent && (parent.active_pois.len >= my_index) && (parent.map_z.len >= my_index) && (my_index > 0)) // Unless vars are turbofucked.
-				map_sectors["[parent.map_z[my_index]]"] = parent
+				GLOB.map_sectors["[parent.map_z[my_index]]"] = parent
 				parent.active_pois[my_index] = null
 	if(parent)
 		parent.all_children.Remove(src)
@@ -305,7 +305,7 @@ GLOBAL_VAR_INIT(dynamic_sector_master, null)
 // Make sure we reassign our z_level to the parent if one exists and somehow this gets called.
 /obj/effect/overmap/visitable/dynamic/poi/unregister_z_levels()
 	if(parent && LAZYLEN(map_z))
-		map_sectors["[map_z[1]]"] = parent
+		GLOB.map_sectors["[map_z[1]]"] = parent
 		map_z = null
 	return ..()
 

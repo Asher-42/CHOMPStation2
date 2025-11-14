@@ -26,15 +26,15 @@
 /obj/item/holowarrant/attack_self(mob/living/user as mob)
 	active = null
 	var/list/warrants = list()
-	if(!isnull(data_core.general))
-		for(var/datum/data/record/warrant/W in data_core.warrants)
+	if(!isnull(GLOB.data_core.general))
+		for(var/datum/data/record/warrant/W in GLOB.data_core.warrants)
 			warrants += W.fields["namewarrant"]
 	if(warrants.len == 0)
 		to_chat(user,span_notice("There are no warrants available"))
 		return
 	var/temp
 	temp = tgui_input_list(user, "Which warrant would you like to load?", "Warrant Selection", warrants)
-	for(var/datum/data/record/warrant/W in data_core.warrants)
+	for(var/datum/data/record/warrant/W in GLOB.data_core.warrants)
 		if(W.fields["namewarrant"] == temp)
 			active = W
 	update_icon()
@@ -42,7 +42,7 @@
 /obj/item/holowarrant/attackby(obj/item/W, mob/user)
 	if(active)
 		var/obj/item/card/id/I = W.GetIdCard()
-		if(access_hos in I.GetAccess()) // VOREStation edit
+		if(ACCESS_HOS in I.GetAccess()) // VOREStation edit
 			var/choice = tgui_alert(user, "Would you like to authorize this warrant?","Warrant authorization",list("Yes","No"))
 			if(choice == "Yes")
 				active.fields["auth"] = "[I.registered_name] - [I.assignment ? I.assignment : "(Unknown)"]"

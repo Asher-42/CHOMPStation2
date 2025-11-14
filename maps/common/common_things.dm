@@ -1,58 +1,58 @@
 /obj/effect/step_trigger/teleporter/to_mining
 	icon = 'icons/obj/structures/stairs_64x64.dmi'
 	icon_state = ""
-	invisibility = 0
+	invisibility = INVISIBILITY_NONE
 	plane = TURF_PLANE
 	layer = ABOVE_TURF_LAYER
 
 /obj/effect/step_trigger/teleporter/from_mining
 	icon = 'icons/obj/structures/stairs_64x64.dmi'
 	icon_state = ""
-	invisibility = 0
+	invisibility = INVISIBILITY_NONE
 	plane = TURF_PLANE
 	layer = ABOVE_TURF_LAYER
 
 /obj/effect/step_trigger/teleporter/to_solars
 	icon = 'icons/obj/structures/stairs_64x64.dmi'
 	icon_state = ""
-	invisibility = 0
+	invisibility = INVISIBILITY_NONE
 
 /obj/effect/step_trigger/teleporter/from_solars
 	icon = 'icons/obj/structures/stairs_64x64.dmi'
 	icon_state = ""
-	invisibility = 0
+	invisibility = INVISIBILITY_NONE
 
 /obj/effect/step_trigger/teleporter/wild
 	icon = 'icons/obj/structures/stairs_64x64.dmi'
 	icon_state = ""
-	invisibility = 0
+	invisibility = INVISIBILITY_NONE
 
 /obj/effect/step_trigger/teleporter/to_underdark
 	icon = 'icons/obj/structures/stairs_64x64.dmi'
 	icon_state = ""
-	invisibility = 0
+	invisibility = INVISIBILITY_NONE
 
 /obj/effect/step_trigger/teleporter/from_underdark
 	icon = 'icons/obj/structures/stairs_64x64.dmi'
 	icon_state = ""
-	invisibility = 0
+	invisibility = INVISIBILITY_NONE
 
 /obj/effect/step_trigger/teleporter/to_plains
 	icon = 'icons/obj/structures/stairs_64x64.dmi'
 	icon_state = ""
-	invisibility = 0
+	invisibility = INVISIBILITY_NONE
 
 /obj/effect/step_trigger/teleporter/from_plains
 	icon = 'icons/obj/structures/stairs_64x64.dmi'
 	icon_state = ""
-	invisibility = 0
+	invisibility = INVISIBILITY_NONE
 
 /obj/effect/step_trigger/teleporter/planetary_fall/virgo3b
 
 /obj/effect/step_trigger/lost_in_space
 	icon = 'icons/obj/structures/stairs_64x64.dmi'
 	icon_state = ""
-	invisibility = 0
+	invisibility = INVISIBILITY_NONE
 	var/deathmessage = "You drift off into space, floating alone in the void until your life support runs out."
 
 /obj/effect/step_trigger/lost_in_space/Trigger(var/atom/movable/A) //replacement for shuttle dump zones because there's no empty space levels to dump to
@@ -70,7 +70,7 @@
 		playsound(src, 'sound/effects/supermatter.ogg', 75, 1)
 	if(ismob(A) && prob(5))//lucky day
 		var/destturf = locate(rand(5,world.maxx-5),rand(5,world.maxy-5),pick(using_map.station_levels))
-		new /datum/teleport/instant(A, destturf, 0, 1, null, null, null, 'sound/effects/phasein.ogg')
+		do_teleport(A, destturf, 0, 1, asoundin = 'sound/effects/phasein.ogg')
 	else
 		return ..()
 
@@ -91,21 +91,29 @@
 
 	var/area/shock_area = /area/tether/surfacebase/tram
 
+//For the tram.
+/turf/simulated/floor/maglev/moving
+	icon = 'icons/turf/transit_vr.dmi'
+
 /turf/simulated/floor/maglev/Initialize(mapload)
 	. = ..()
 	shock_area = locate(shock_area)
 
 // Walking on maglev tracks will shock you! Horray!
 /turf/simulated/floor/maglev/Entered(var/atom/movable/AM, var/atom/old_loc)
-	if(isliving(AM) && !(AM.is_incorporeal()) && prob(50))
-		track_zap(AM)
+	if(!isliving(AM) || prob(50))
+		return
+	if(locate(/obj/structure/catwalk) in src) // safe to walk over as a bridge!
+		return
+	track_zap(AM)
 
 /turf/simulated/floor/maglev/attack_hand(var/mob/user)
 	if(prob(75))
 		track_zap(user)
 
 /turf/simulated/floor/maglev/proc/track_zap(var/mob/living/user)
-	if (!istype(user)) return
+	if(!istype(user) || user.is_incorporeal())
+		return
 	if (electrocute_mob(user, shock_area, src))
 		var/datum/effect/effect/system/spark_spread/s = new /datum/effect/effect/system/spark_spread
 		s.set_up(5, 1, src)
@@ -151,13 +159,12 @@
 	return ..()
 
 /obj/machinery/cryopod/robot/door/tram/Bumped(var/atom/movable/AM)
-	if(!ishuman(AM))
+	if(!isliving(AM))
 		return
 
-	var/mob/living/carbon/human/user = AM
-
-	var/choice = tgui_alert(user, "Do you want to depart via the tram? Your character will leave the round.","Departure",list("Yes","No"))
-	if(user && Adjacent(user) && choice == "Yes")
+	var/mob/living/user = AM
+	var/choice = tgui_alert(user, "Do you want to depart via the tram? Your character will leave the round.","Departure",list("Yes","No"), timeout = 5 SECONDS)
+	if(!QDELETED(user) && Adjacent(user) && choice == "Yes")
 		var/mob/observer/dead/newghost = user.ghostize()
 		newghost.timeofdeath = world.time
 		despawn_occupant(user)

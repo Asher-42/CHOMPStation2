@@ -7,6 +7,7 @@
 	icon_state = "drop_marker"
 
 /obj/effect/calldown_attack/Initialize(mapload)
+	. = ..()
 	var/delay = rand(25, 30)
 	addtimer(CALLBACK(src, PROC_REF(spawn_object)), delay-7)
 
@@ -26,16 +27,15 @@
 	icon = 'icons/effects/random_stuff_vr.dmi'
 
 /obj/effect/illusionary_fall/Initialize(mapload)
-	.=..()
+	. = ..()
 	icon_state = "[rand(1,33)]"
 
 /obj/effect/illusionary_fall/end_fall(var/crushing = FALSE)
 	for(var/mob/living/L in loc)
 		var/target_zone = ran_zone()
 		var/blocked = L.run_armor_check(target_zone, "melee")
-		var/soaked = L.get_armor_soak(target_zone, "melee")
 
-		if(!L.apply_damage(35, BRUTE, target_zone, blocked, soaked))
+		if(!L.apply_damage(35, BRUTE, target_zone, blocked))
 			break
 	playsound(src, 'sound/effects/clang2.ogg', 50, 1)
 	qdel(src)

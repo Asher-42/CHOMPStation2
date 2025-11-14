@@ -24,7 +24,7 @@
 	var/atom/movable/copying = null // The thing we're trying to look like.
 	var/realistic = FALSE // If true, things like bullets and weapons will hit it, to be a bit more convincing from a distance.
 
-	can_pain_emote = FALSE // CHOMPEdit: Hallucinations can't feel pain and shouldn't take damage anyways, but, sanity
+	can_pain_emote = FALSE
 
 /mob/living/simple_mob/illusion/update_icon() // We don't want the appearance changing AT ALL unless by copy_appearance().
 	return
@@ -65,10 +65,9 @@
 	else
 		switch(M.a_intent)
 			if(I_HELP)
-				var/datum/gender/T = gender_datums[src.get_visible_gender()]
 				M.visible_message(
-					span_notice("\The [M] hugs [src] to make [T.him] feel better!"), \
-					span_notice("You hug [src] to make [T.him] feel better!")
+					span_notice("\The [M] hugs [src] to make [p_them()] feel better!"), \
+					span_notice("You hug [src] to make [p_them()] feel better!")
 					) // slightly redundant as at the moment most mobs still use the normal gender var, but it works and future-proofs it
 				playsound(src, 'sound/weapons/thudswoosh.ogg', 50, 1, -1)
 

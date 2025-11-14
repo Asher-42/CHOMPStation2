@@ -7,7 +7,7 @@
 
 /datum/event/carp_migration/setup()
 	if(prob(50))
-		log_debug("Carp migration failed successfully.")
+		log_game("carp migration: event setup prob() failed, killing")
 		kill()
 		return
 	announceWhen = rand(30, 60) // 1 to 2 minutes
@@ -38,7 +38,7 @@
 
 	// Check if any landmarks exist!
 	var/list/spawn_locations = list()
-	for(var/obj/effect/landmark/C in landmarks_list)
+	for(var/obj/effect/landmark/C in GLOB.landmarks_list)
 		if(C.name == "carpspawn" && (C.z in affecting_z))
 			spawn_locations.Add(C.loc)
 	if(spawn_locations.len) // Okay we've got landmarks, lets use those!
@@ -88,6 +88,7 @@
 
 // If carp is bomphed, remove it from the list.
 /datum/event/carp_migration/proc/on_carp_destruction(var/mob/M)
+	SIGNAL_HANDLER
 	spawned_carp -= M
 	UnregisterSignal(M, COMSIG_OBSERVER_DESTROYED)
 

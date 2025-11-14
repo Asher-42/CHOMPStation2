@@ -108,11 +108,11 @@ var/datum/uplink_random_selection/all_uplink_selection = new/datum/uplink_random
 
 #ifdef DEBUG
 /proc/debug_uplink_purchage_log()
-	for(var/antag_type in all_antag_types)
-		var/datum/antagonist/A = all_antag_types[antag_type]
+	for(var/antag_type in GLOB.all_antag_types)
+		var/datum/antagonist/A = GLOB.all_antag_types[antag_type]
 		A.print_player_summary()
 
 /proc/debug_uplink_item_assoc_list()
 	for(var/key in uplink.items_assoc)
-		to_world("[key] - [uplink.items_assoc[key]]")
+		to_chat(world, "[key] - [uplink.items_assoc[key]]")
 #endif

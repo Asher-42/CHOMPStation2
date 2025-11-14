@@ -74,7 +74,7 @@
 /obj/structure/stairs/bottom/Initialize(mapload)
 	. = ..()
 	if(!GetAbove(src))
-		warning("Stair created without level above: ([loc.x], [loc.y], [loc.z])")
+		WARNING("Stair created without level above: ([loc.x], [loc.y], [loc.z])")
 		return INITIALIZE_HINT_QDEL
 
 /obj/structure/stairs/bottom/Destroy()
@@ -82,7 +82,7 @@
 		top.bottom = null
 	if(middle)
 		middle.bottom = null
-	..()
+	. = ..()
 
 // These are necessarily fairly similar, but because the positional relations are different, we have to copy-pasta a fair bit
 /obj/structure/stairs/bottom/check_integrity(var/obj/structure/stairs/bottom/B = null,
@@ -120,7 +120,7 @@
 		return TRUE
 
 	// Else, we have to look in other directions
-	for(var/dir in cardinal - src.dir)
+	for(var/dir in GLOB.cardinal - src.dir)
 		B2 = get_step(src, dir)
 		T2 = GetAbove(B2)
 		if(!istype(B2) || !istype(T2))
@@ -193,7 +193,7 @@
 				var/mob/living/L = P
 				if(L.client)
 					L.client.Process_Grab() // Update any miscellanous grabs, possibly break grab-chains
-
+		SEND_SIGNAL(AM, COMSIG_MOVED_UP_STAIRS, AM, oldloc)
 	return TRUE
 
 /obj/structure/stairs/bottom/use_stairs_instant(var/atom/movable/AM)
@@ -231,6 +231,7 @@
 			L.client.Process_Grab()
 	else
 		AM.forceMove(get_turf(top))
+	SEND_SIGNAL(AM, COMSIG_MOVED_UP_STAIRS, AM)
 
 
 //////////////////////////////////////////////////////////////////////
@@ -240,7 +241,6 @@
 	icon_state = "stair_u"
 	opacity   = TRUE
 	density   = TRUE // Too high to simply step up on
-	climbable = TRUE // But they can be climbed if the bottom is out
 
 	var/obj/structure/stairs/top/top = null
 	var/obj/structure/stairs/bottom/bottom = null
@@ -248,15 +248,16 @@
 /obj/structure/stairs/middle/Initialize(mapload)
 	. = ..()
 	if(!GetAbove(src))
-		warning("Stair created without level above: ([loc.x], [loc.y], [loc.z])")
+		WARNING("Stair created without level above: ([loc.x], [loc.y], [loc.z])")
 		return INITIALIZE_HINT_QDEL
+	AddElement(/datum/element/climbable)
 
 /obj/structure/stairs/middle/Destroy()
 	if(top)
 		top.middle = null
 	if(bottom)
 		bottom.middle = null
-	..()
+	. = ..()
 
 // These are necessarily fairly similar, but because the positional relations are different, we have to copy-pasta a fair bit
 /obj/structure/stairs/middle/check_integrity(var/obj/structure/stairs/bottom/B = null,
@@ -293,7 +294,7 @@
 		return TRUE
 
 	// Else, we have to look in other directions
-	for(var/dir in cardinal - src.dir)
+	for(var/dir in GLOB.cardinal - src.dir)
 		B1 = get_step(src, turn(dir, 180))
 		O = GetAbove(B1)
 		if(!istype(B1) || !istype(O))
@@ -313,7 +314,6 @@
 /obj/structure/stairs/middle/MouseDrop_T(mob/target, mob/user)
 	. = ..()
 	if(check_integrity())
-		do_climb(user)
 		user.forceMove(get_turf(top)) // You can't really drag things when you have to climb up the gap in the stairs yourself
 
 /obj/structure/stairs/middle/Bumped(mob/user)
@@ -331,7 +331,7 @@
 /obj/structure/stairs/top/Initialize(mapload)
 	. = ..()
 	if(!GetBelow(src))
-		warning("Stair created without level below: ([loc.x], [loc.y], [loc.z])")
+		WARNING("Stair created without level below: ([loc.x], [loc.y], [loc.z])")
 		return INITIALIZE_HINT_QDEL
 
 /obj/structure/stairs/top/Destroy()
@@ -339,7 +339,7 @@
 		middle.top = null
 	if(bottom)
 		bottom.top = null
-	..()
+	. = ..()
 
 // These are necessarily fairly similar, but because the positional relations are different, we have to copy-pasta a fair bit
 /obj/structure/stairs/top/check_integrity(var/obj/structure/stairs/bottom/B = null,
@@ -377,7 +377,7 @@
 		return
 
 	// Else, we have to look in other directions
-	for(var/dir in cardinal - src.dir)
+	for(var/dir in GLOB.cardinal - src.dir)
 		O = get_step(src, turn(dir, 180))
 		B1 = GetBelow(O)
 		if(!istype(B1) || !istype(O))
@@ -453,7 +453,7 @@
 				var/mob/living/L = P
 				if(L.client)
 					L.client.Process_Grab() // Update any miscellanous grabs, possibly break grab-chains
-
+		SEND_SIGNAL(AM, COMSIG_MOVED_DOWN_STAIRS, AM, oldloc)
 	return TRUE
 
 /obj/structure/stairs/top/use_stairs_instant(var/atom/movable/AM)
@@ -490,6 +490,7 @@
 			L.client.Process_Grab()
 	else
 		AM.forceMove(get_turf(bottom))
+	SEND_SIGNAL(AM, COMSIG_MOVED_DOWN_STAIRS, AM)
 
 // Mapping pieces, placed at the bottommost part of the stairs
 /obj/structure/stairs/spawner
@@ -505,10 +506,10 @@
 	var/turf/T2 = GetAbove(B2)
 
 	if(!istype(B1) || !istype(B2))
-		warning("Stair created at invalid loc: ([loc.x], [loc.y], [loc.z])")
+		WARNING("Stair created at invalid loc: ([loc.x], [loc.y], [loc.z])")
 		return INITIALIZE_HINT_QDEL
 	if(!istype(T1) || !istype(T2))
-		warning("Stair created without level above: ([loc.x], [loc.y], [loc.z])")
+		WARNING("Stair created without level above: ([loc.x], [loc.y], [loc.z])")
 		return INITIALIZE_HINT_QDEL
 
 	// Spawn the stairs

@@ -59,7 +59,7 @@ FIRE ALARM
 		offset_alarm()
 
 	if(z in using_map.contact_levels)
-		set_security_level(security_level ? get_security_level() : "green")
+		set_security_level(GLOB.security_level ? get_security_level() : "green")
 
 	soundloop = new(list(src), FALSE) // CHOMPEdit: Create soundloop
 	engalarm = new(list(src), FALSE) // CHOMPEdit: Create soundloop
@@ -133,7 +133,7 @@ FIRE ALARM
 /obj/machinery/firealarm/bullet_act()
 	return alarm()
 
-/obj/machinery/firealarm/emp_act(severity)
+/obj/machinery/firealarm/emp_act(severity, recursive)
 	if(prob(50 / severity))
 		alarm(rand(30 / severity, 60 / severity))
 	..()
@@ -229,7 +229,7 @@ FIRE ALARM
 		return
 	var/area/area = get_area(src)
 	if(!firewarn && !alarms_hidden) // CHOMPAdd
-		global_announcer.autosay("Tripped [area]", "Fire Alarm Monitor", DEPARTMENT_ENGINEERING)
+		GLOB.global_announcer.autosay("Tripped [area]", "Fire Alarm Monitor", DEPARTMENT_ENGINEERING)
 	for(var/obj/machinery/firealarm/FA in area)
 		fire_alarm.triggerAlarm(loc, FA, duration, hidden = alarms_hidden)
 		FA.soundloop.start() // CHOMPEdit: Soundloop
@@ -275,7 +275,7 @@ Just a object used in constructing fire alarms
 	if(user.stat || stat & (NOPOWER|BROKEN))
 		return
 
-	user.machine = src
+	user.set_machine(src)
 	var/area/A = get_area(src)
 	ASSERT(isarea(A))
 	var/d1
@@ -332,7 +332,7 @@ Just a object used in constructing fire alarms
 	if(usr.stat || stat & (BROKEN|NOPOWER))
 		return
 	if((usr.contents.Find(src) || ((get_dist(src, usr) <= 1) && istype(loc, /turf))) || (isAI(usr)))
-		usr.machine = src
+		usr.set_machine(src)
 		if(href_list["reset"])
 			reset()
 		else if(href_list["alarm"])

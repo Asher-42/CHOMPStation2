@@ -5,12 +5,12 @@
 	deform = 'icons/mob/human_races/r_def_human_vr.dmi'
 	primitive_form = SPECIES_MONKEY
 	unarmed_types = list(/datum/unarmed_attack/stomp, /datum/unarmed_attack/kick, /datum/unarmed_attack/punch, /datum/unarmed_attack/bite)
-	blurb = "Humanity originated in the Sol system, and over the last three centuries has spread \
+	blurb = "Humanity originated in the Sol system, and over the last five centuries has spread \
 	colonies across a wide swathe of space. They hold a wide range of forms and creeds.<br/><br/> \
 	While the central Sol government maintains control of its far-flung people, powerful corporate \
 	interests, rampant cyber and bio-augmentation and secretive factions make life on most human \
-	worlds tumultous at best."
-	wikilink="https://wiki.vore-station.net/Human"
+	worlds tumultous at best." //CHOMPedit: blurb variable
+	wikilink="https://wiki.chompstation13.net/index.php?title=Humans" //CHOMPEdit
 	catalogue_data = list(/datum/category_item/catalogue/fauna/humans)
 	num_alternate_languages = 3
 	species_language = LANGUAGE_SOL_COMMON
@@ -40,18 +40,17 @@
 		O_KIDNEYS =		/obj/item/organ/internal/kidneys,
 		O_BRAIN =		/obj/item/organ/internal/brain,
 		O_APPENDIX = 	/obj/item/organ/internal/appendix,
+		O_SPLEEN =		/obj/item/organ/internal/spleen,
 		O_SPLEEN = 		/obj/item/organ/internal/spleen,
 		O_EYES =		/obj/item/organ/internal/eyes,
 		O_STOMACH =		/obj/item/organ/internal/stomach,
 		O_INTESTINE =	/obj/item/organ/internal/intestine
 		)
 
-	// CHOMPEdit: Species Specific Sounds
 	species_sounds = "Human Male"
 	gender_specific_species_sounds = TRUE
 	species_sounds_male = "Human Male"
 	species_sounds_female = "Human Female"
-	// CHOMPEdit End
 
 	inherent_verbs = list(
 		/mob/living/carbon/human/proc/tie_hair)
@@ -90,21 +89,17 @@
 	health_hud_intensity = 2.5
 	chem_strength_alcohol = 1.25
 	throwforce_absorb_threshold = 10
-	digi_allowed = TRUE
 	genders = list(MALE, FEMALE, PLURAL, NEUTER)
 
-	min_age = 18
+	min_age = 40 //ChompEDIT - Unathi lore minimal adult age.
 	max_age = 260
 
 	economic_modifier = 10
 
-	// CHOMPEdit: Reverted these back to Polaris, but commented them out. We're using species-specific sounds instead.
-	// male_scream_sound = list ('sound/effects/mob_effects/una_scream1.ogg','sound/effects/mob_effects/una_scream2.ogg')
-	// female_scream_sound = list ('sound/effects/mob_effects/una_scream1.ogg','sound/effects/mob_effects/una_scream2.ogg')
 	species_sounds = "Lizard" // Species sounds
 
-	pain_verb_1p = list("hiss", "growl") // CHOMPEdit: Unathi pain emotes
-	pain_verb_3p = list("hisses", "growls") // CHOMPEdit: Pain emotes
+	pain_verb_1p = list("hiss", "growl")
+	pain_verb_3p = list("hisses", "growls")
 
 	blurb = "Heavily reptilian in appearance, the Unathi hail from the Uueoa-Esa system, roughly translated as 'Burning Mother'. \
 			Their home planet, Moghes, is an arid climate with hot rocky plains and deserts, and a temperate band of swamps and savannas with \
@@ -166,11 +161,12 @@
 
 	//No kidneys or appendix
 	has_organ = list(
-		O_HEART =    /obj/item/organ/internal/heart/unathi,
-		O_LUNGS =    /obj/item/organ/internal/lungs/unathi,
-		O_LIVER =    /obj/item/organ/internal/liver/unathi,
-		O_BRAIN =    /obj/item/organ/internal/brain/unathi,
-		O_EYES =     /obj/item/organ/internal/eyes/unathi,
+		O_HEART =		/obj/item/organ/internal/heart/unathi,
+		O_LUNGS =		/obj/item/organ/internal/lungs/unathi,
+		O_LIVER =		/obj/item/organ/internal/liver/unathi,
+		O_SPLEEN =		/obj/item/organ/internal/spleen,
+		O_BRAIN =		/obj/item/organ/internal/brain/unathi,
+		O_EYES =		/obj/item/organ/internal/eyes/unathi,
 		O_STOMACH =		/obj/item/organ/internal/stomach/unathi,
 		O_INTESTINE =	/obj/item/organ/internal/intestine/unathi
 		)
@@ -203,7 +199,7 @@
 	footstep = FOOTSTEP_MOB_CLAW
 
 	inherent_verbs = list(/mob/living/carbon/human/proc/tie_hair)
-	wikilink="https://wiki.vore-station.net/Unathi"
+	wikilink="https://wiki.chompstation13.net/index.php?title=Unathi" //CHOMPSedit: link to our wiki
 
 /datum/species/unathi/equip_survival_gear(var/mob/living/carbon/human/H)
 	..()
@@ -230,7 +226,6 @@
 	species_language = LANGUAGE_SIIK
 	health_hud_intensity = 2.5
 	chem_strength_alcohol = 0.75
-	digi_allowed = TRUE
 	agility = 90
 	can_climb = TRUE
 	climbing_delay = 1.00 //Cats are good climbers.
@@ -240,21 +235,17 @@
 
 	economic_modifier = 10
 
-	// CHOMPEdit Start: Species sounds
 	species_sounds = "Feline"
-	// male_scream_sound = list('modular_chomp/sound/voice/scream/feline/feline_scream.ogg') //CHOMPedit: Scream sounds, finally, 3 years later.
-	//female_scream_sound = list('modular_chomp/sound/voice/scream/feline/feline_scream.ogg') //CHOMPedit: Scream sounds, finally, 3 years later.
 
-	pain_verb_1p = list("hiss", "growl", "yowl") // CHOMPEdit: Unathi pain emotes
-	pain_verb_3p = list("hisses", "growls", "yowls") // CHOMPEdit: Pain emotes
-	// CHOMPEdit End
+	pain_verb_1p = list("hiss", "growl", "yowl")
+	pain_verb_3p = list("hisses", "growls", "yowls")
 
 	blurb = "The Tajaran are a mammalian species resembling roughly felines, hailing from Meralar in the Rarkajar system. \
 	While reaching to the stars independently from outside influences, the humans engaged them in peaceful trade contact \
 	and have accelerated the fledgling culture into the interstellar age. Their history is full of war and highly fractious \
 	governments, something that permeates even to today's times. They prefer colder, tundra-like climates, much like their \
 	home worlds and speak a variety of languages, especially Siik and Akhani."
-	wikilink="https://wiki.vore-station.net/Tajaran"
+	wikilink="https://wiki.chompstation13.net/index.php?title=Tajaran" //CHOMPEdit: links to our wiki
 	catalogue_data = list(/datum/category_item/catalogue/fauna/tajaran)
 
 	body_temperature = 280.15	//Even more cold resistant, even more flammable
@@ -302,13 +293,14 @@
 	cold_discomfort_level = 215
 
 	has_organ = list(    //No appendix.
-		O_HEART =    /obj/item/organ/internal/heart/tajaran,
-		O_LUNGS =    /obj/item/organ/internal/lungs/tajaran,
-		O_VOICE = 		/obj/item/organ/internal/voicebox,
-		O_LIVER =    /obj/item/organ/internal/liver/tajaran,
-		O_KIDNEYS =  /obj/item/organ/internal/kidneys,
-		O_BRAIN =    /obj/item/organ/internal/brain,
-		O_EYES =     /obj/item/organ/internal/eyes/tajaran,
+		O_HEART =		/obj/item/organ/internal/heart/tajaran,
+		O_LUNGS =		/obj/item/organ/internal/lungs/tajaran,
+		O_VOICE =		/obj/item/organ/internal/voicebox,
+		O_LIVER =		/obj/item/organ/internal/liver/tajaran,
+		O_KIDNEYS =		/obj/item/organ/internal/kidneys,
+		O_SPLEEN =		/obj/item/organ/internal/spleen,
+		O_BRAIN =		/obj/item/organ/internal/brain,
+		O_EYES =		/obj/item/organ/internal/eyes/tajaran,
 		O_STOMACH =		/obj/item/organ/internal/stomach/tajaran,
 		O_INTESTINE =	/obj/item/organ/internal/intestine
 		)
@@ -345,7 +337,7 @@
 	of the Qerr'Katish, a caste within their society which keeps the empire of the Skrell running smoothly. Skrell are \
 	herbivores on the whole and tend to be co-operative with the other species of the galaxy, although they rarely reveal \
 	the secrets of their empire to their allies."
-	wikilink="https://wiki.vore-station.net/Skrell"
+	wikilink="https://wiki.chompstation13.net/index.php?title=Skrell" //CHOMPedit: link to our wiki
 	catalogue_data = list(/datum/category_item/catalogue/fauna/skrell)
 	num_alternate_languages = 3
 	secondary_langs = list(LANGUAGE_SKRELLIAN, LANGUAGE_SCHECHI)
@@ -357,13 +349,10 @@
 
 	water_movement = -3
 
-	min_age = 18
+	min_age = 19 //ChompEDIT Lore-based adulthood age for this species is greater than 18.
 	max_age = 130
 
 	economic_modifier = 10
-
-	// male_scream_sound = null //CHOMPedit
-	// female_scream_sound = null //CHOMPedit
 
 	darksight = 4
 	flash_mod = 1.2
@@ -458,7 +447,7 @@
 	flash_mod = 2
 	flash_burn = 15 //flashing a zaddat probably counts as police brutality
 	metabolic_rate = 0.7 //did u know if your ancestors starved ur body will actually start in starvation mode?
-	item_slowdown_mod = 0.30 //CHOMPedit: They can actually wear their living-required spacesuits without enormous slowdown now.
+	item_slowdown_mod = 0.30
 	taste_sensitivity = TASTE_SENSITIVE
 	num_alternate_languages = 3
 	secondary_langs = list(LANGUAGE_ZADDAT, LANGUAGE_UNATHI)
@@ -475,14 +464,12 @@
 	min_age = 18
 	max_age = 90
 
-	// male_scream_sound = null //CHOMPedit
-	// female_scream_sound = null //CHOMPedit
-
 	blurb = "The Zaddat are an Unathi client race only recently introduced to SolGov space. Having evolved on \
 	the high-pressure and post-apocalyptic world of Xohok, Zaddat require an environmental suit called a Shroud \
 	to survive in usual planetary and station atmospheres. Despite these restrictions, worsening conditions on \
 	Xohok and the blessing of the Moghes Hegemony have lead the Zaddat to enter human space in search of work \
 	and living space."
+	wikilink="https://wiki.chompstation13.net/index.php?title=Zaddat" //CHOMPedit: link to our wiki
 	catalogue_data = list(/datum/category_item/catalogue/fauna/zaddat)
 
 	hazard_high_pressure = HAZARD_HIGH_PRESSURE + 500  // Dangerously high pressure.
@@ -504,6 +491,8 @@
 
 	reagent_tag = IS_ZADDAT
 
+	species_component = list(/datum/component/burninlight) // Until a parent component like xenochimera have is needed, only handles burning in light.
+
 	heat_discomfort_strings = list(
 		"Your joints itch.",
 		"You feel uncomfortably warm.",
@@ -517,15 +506,16 @@
 		)
 
 	has_organ = list(    //No appendix.
-	O_HEART =    /obj/item/organ/internal/heart,
-	O_LUNGS =    /obj/item/organ/internal/lungs,
-	O_VOICE = 	 /obj/item/organ/internal/voicebox,
-	O_LIVER =    /obj/item/organ/internal/liver,
-	O_KIDNEYS =  /obj/item/organ/internal/kidneys,
-	O_BRAIN =    /obj/item/organ/internal/brain,
-	O_EYES =     /obj/item/organ/internal/eyes,
-	O_STOMACH =	 /obj/item/organ/internal/stomach,
-	O_INTESTINE =/obj/item/organ/internal/intestine
+	O_HEART =		/obj/item/organ/internal/heart,
+	O_LUNGS =		/obj/item/organ/internal/lungs,
+	O_VOICE =		/obj/item/organ/internal/voicebox,
+	O_LIVER =		/obj/item/organ/internal/liver,
+	O_KIDNEYS =		/obj/item/organ/internal/kidneys,
+	O_SPLEEN =		/obj/item/organ/internal/spleen,
+	O_BRAIN =		/obj/item/organ/internal/brain,
+	O_EYES =		/obj/item/organ/internal/eyes,
+	O_STOMACH =		/obj/item/organ/internal/stomach,
+	O_INTESTINE =	/obj/item/organ/internal/intestine
 	)
 
 
@@ -545,24 +535,6 @@
 
 	H.equip_to_slot_or_del(new /obj/item/clothing/mask/gas/zaddat/(H), slot_wear_mask) // mask has to come first or Shroud helmet will get in the way
 	H.equip_to_slot_or_del(new /obj/item/clothing/suit/space/void/zaddat/(H), slot_wear_suit)
-
-/datum/species/zaddat/handle_environment_special(var/mob/living/carbon/human/H)
-
-	if(H.inStasisNow())
-		return
-
-	var/damageable = H.get_damageable_organs()
-	var/covered = H.get_coverage()
-
-	var/light_amount = 0 //how much light there is in the place, affects damage
-	if(isturf(H.loc)) //else, there's considered to be no light
-		var/turf/T = H.loc
-		light_amount = T.get_lumcount() * 5
-
-
-	for(var/K in damageable)
-		if(!(K in covered))
-			H.apply_damage(light_amount/4, BURN, K, 0, 0)
 
 /datum/species/diona
 
@@ -593,11 +565,9 @@
 	min_age = 18
 	max_age = 300
 
-	economic_modifier = 10
+	species_component = list(/datum/component/radiation_effects/diona)
 
-	// CHOMPEdit: For shits and giggles, I want someone to give the Diona plant sounds from like, WoW. lmao
-	// male_scream_sound = null //CHOMPedit
-	// female_scream_sound = null //CHOMPedit
+	economic_modifier = 10
 
 	blurb = "Commonly referred to (erroneously) as 'plant people', the Dionaea are a strange space-dwelling collective \
 	species hailing from Epsilon Ursae Minoris. Each 'diona' is a cluster of numerous cat-sized organisms called nymphs; \
@@ -606,7 +576,7 @@
 	all known species, especially the Skrell. Their communal mind makes them slow to react, and they have difficulty understanding \
 	even the simplest concepts of other minds. Their alien physiology allows them survive happily off a diet of nothing but light, \
 	water and other radiation."
-	wikilink="https://wiki.vore-station.net/Diona"
+	wikilink="https://wiki.chompstation13.net/index.php?title=Diona" //CHOMPedit
 	catalogue_data = list(/datum/category_item/catalogue/fauna/dionaea)
 
 	has_organ = list(
@@ -653,7 +623,7 @@
 	body_temperature = T0C + 15		//make the plant people have a bit lower body temperature, why not
 
 	flags = NO_DNA | NO_SLEEVE | IS_PLANT | NO_PAIN | NO_SLIP | NO_MINOR_CUT | NO_DEFIB
-	spawn_flags = SPECIES_CAN_JOIN
+	spawn_flags = SPECIES_CAN_JOIN | SPECIES_IS_WHITELISTED | SPECIES_WHITELIST_SELECTABLE	//CHOMPStation Edit: restore whitelist requirement
 
 	blood_color = "#004400"
 	flesh_color = "#907E4A"
@@ -740,14 +710,15 @@
 		//traumatic_shock is updated every tick, incrementing that is pointless - shock_stage is the counter.
 		//Not that it matters much for diona, who have NO_PAIN.
 		H.shock_stage++
+	..()
 
 
 
 /datum/species/sergal
 	name = SPECIES_SERGAL
 	name_plural = "Sergals"
-	icobase = 'icons/mob/human_races/r_sergal.dmi'
-	deform = 'icons/mob/human_races/r_def_sergal.dmi'
+	icobase = 'modular_chomp/icons/mob/human_races/r_sergal.dmi' //ChompEDIT - our icons
+	deform = 'modular_chomp/icons/mob/human_races/r_def_sergal.dmi' //ChompEDIT - our icons
 	tail = "tail"
 	icobase_tail = 1
 	unarmed_types = list(/datum/unarmed_attack/stomp, /datum/unarmed_attack/kick, /datum/unarmed_attack/claws, /datum/unarmed_attack/bite/sharp)
@@ -761,10 +732,11 @@
 	species_language = LANGUAGE_SAGARU
 	color_mult = 1
 	inherent_verbs = list(/mob/living/carbon/human/proc/tie_hair)
-	digi_allowed = TRUE
 
 	min_age = 18
-	max_age = 80
+	max_age = 110
+
+	species_sounds = "Canine"
 
 	blurb = "There are two subspecies of Sergal; Southern and Northern. Northern sergals are a highly aggressive race \
 	that lives in the plains and tundra of their homeworld. They are characterized by long, fluffy fur bodies with cold colors; \
@@ -829,8 +801,7 @@
 	assisted_langs = list(LANGUAGE_EAL, LANGUAGE_ROOTLOCAL, LANGUAGE_ROOTGLOBAL, LANGUAGE_VOX, LANGUAGE_PROMETHEAN)
 	inherent_verbs = list(/mob/living/carbon/human/proc/tie_hair, /mob/living/carbon/human/proc/water_stealth, /mob/living/carbon/human/proc/underwater_devour)
 	min_age = 18
-	max_age = 80
-	digi_allowed = TRUE
+	max_age = 110 //CHOMPEdit
 
 	blurb = "The Akula are a species of amphibious humanoids like the Skrell, but have an appearance very similar to that of a shark. \
 	They were first discovered as a primitive race of underwater dwelling tribal creatures by the Skrell. At first they were not believed \
@@ -882,8 +853,7 @@
 		/mob/living/proc/start_wings_hovering,
 		/mob/living/carbon/human/proc/tie_hair)
 	min_age = 18
-	max_age = 80
-	digi_allowed = TRUE
+	max_age = 110 //CHOMPedit
 
 	blurb = "Nevreans are a race of avian and dinosaur-like creatures living on Tal. They belong to a group of races that hails from Eltus, \
 	in the Vilous system. Unlike sergals whom they share a star system with, their species is a very peaceful one. They possess remarkable \
@@ -914,8 +884,8 @@
 /datum/species/hi_zoxxen
 	name = SPECIES_ZORREN_HIGH
 	name_plural = "Zorren"
-	icobase = 'icons/mob/human_races/r_fox_vr.dmi'
-	deform = 'icons/mob/human_races/r_def_fox.dmi'
+	icobase = 'icons/mob/human_races/r_fox_light_vr.dmi'
+	deform = 'icons/mob/human_races/r_fox.dmi'
 	tail = "tail"
 	icobase_tail = 1
 	unarmed_types = list(/datum/unarmed_attack/stomp, /datum/unarmed_attack/kick, /datum/unarmed_attack/claws, /datum/unarmed_attack/bite/sharp)
@@ -926,10 +896,11 @@
 	inherent_verbs = list(/mob/living/carbon/human/proc/lick_wounds,
 		/mob/living/proc/shred_limb,
 		/mob/living/carbon/human/proc/tie_hair)
-	digi_allowed = TRUE
 
-	min_age = 18
+	min_age = 20
 	max_age = 80
+
+	species_sounds = "Vulpine"
 
 	blurb = "The fennec-like, blue-blooded Zorren are native to Virgo 4/Menhir and are descendants of a precursor species \
 			that is thought to be responsible for the near-collapse of the biosphere of the planet. \
@@ -937,7 +908,7 @@
 			they now slowly recover from their previous hubris and aim to revitalize their planet. While many Zorren live in pre-industrial conditions by necessity, \
 			they are an interstellar species known for their pride and stubbornness and doggedly hold out on a Deathworld of their own creation. \
 			As local species, they hold moderate sway on local corporations and are hired by NT and other companies, although they find \"Outlander\" culture deeply weird."
-	wikilink="https://wiki.vore-station.net/Zorren"
+	wikilink="https://wiki.chompstation13.net/index.php?title=Zorren" //CHOMPEdit: link to our wiki
 
 	catalogue_data = list(/datum/category_item/catalogue/fauna/zorren)
 
@@ -951,6 +922,9 @@
 	blood_reagents = REAGENT_ID_COPPER
 	reagent_tag = IS_ZORREN
 	color_mult = 1
+	default_custom_base = SPECIES_ZORREN_HIGH
+
+	selects_bodytype = SELECTS_BODYTYPE_ZORREN
 
 	genders = list(MALE, FEMALE, PLURAL, NEUTER)
 
@@ -960,13 +934,23 @@
 		"Your overheated skin itches."
 		)
 
+/datum/species/hi_zoxxen/get_race_key()
+	var/datum/species/real = GLOB.all_species[base_species]
+	return real.race_key
+
+/datum/species/hi_zoxxen/dark    //alternate sprite base for zorren
+	name = SPECIES_ZORREN_DARK
+	icobase = 'icons/mob/human_races/r_fox_vr.dmi'
+	spawn_flags = SPECIES_IS_RESTRICTED
+
 /datum/species/vulpkanin
 	name = SPECIES_VULPKANIN
 	name_plural = "Vulpkanin"
-	blurb = "Vulpkanin are a species of sapient canine bipeds, who are the descendants of a lost colony during the waning days of a Precursor species, \
-	from which their distant cousins, the Zorren, also originate from. Independent and iconoclast, they have abandoned the ideals of their forefathers \
-	largely and prefer to look outwards as explorers and scientists to forge their own identity. They speak a guttural language known as 'Canilunzt' \
-	which has a heavy emphasis on utilizing tail positioning and ear twitches to communicate intent."
+	blurb = "Vulpkanin are a species of sharp-witted canine-pideds residing on the planet Altam just barely within the \
+	dual-star Vazzend system. Their politically de-centralized society and independent natures have led them to become a species and \
+	culture both feared and respected for their scientific breakthroughs. Discovery, loyalty, and utilitarianism dominates their lifestyles \
+	to the degree it can cause conflict with more rigorous and strict authorities. They speak a guttural language known as 'Canilunzt' \
+	which has a heavy emphasis on utilizing tail positioning and ear twitches to communicate intent." //CHOMPedit
 	icobase = 'icons/mob/human_races/r_vulpkanin.dmi'
 	deform = 'icons/mob/human_races/r_vulpkanin.dmi'
 	secondary_langs = list(LANGUAGE_CANILUNZT)
@@ -981,7 +965,11 @@
 	color_mult = 1
 	inherent_verbs = list(/mob/living/carbon/human/proc/lick_wounds,
 		/mob/living/carbon/human/proc/tie_hair)
-	digi_allowed = TRUE
+
+	pain_verb_1p = list("yelp", "growl")
+	pain_verb_3p = list("yelps", "growls")
+
+	species_sounds = "Canine"
 
 	wikilink="https://wiki.vore-station.net/Backstory#Vulpkanin"
 
@@ -1032,7 +1020,7 @@
 	icobase = 'icons/mob/human_races/r_skrell_vr.dmi'
 	deform = 'icons/mob/human_races/r_def_skrell_vr.dmi'
 	color_mult = 1
-	min_age = 18
+	min_age = 20
 	inherent_verbs = list(/mob/living/carbon/human/proc/tie_hair, /mob/living/carbon/human/proc/water_stealth, /mob/living/carbon/human/proc/underwater_devour)
 	reagent_tag = null
 	allergens = null
@@ -1055,32 +1043,32 @@
 	spawn_flags = SPECIES_IS_RESTRICTED
 /datum/species/harpy
 	name = SPECIES_RAPALA
-	name_plural = "Rapalans"
+	name_plural = "Rapala"
 	icobase = 'icons/mob/human_races/r_harpy_vr.dmi'
 	deform = 'icons/mob/human_races/r_def_harpy_vr.dmi'
 	tail = "tail"
 	icobase_tail = 1
 	unarmed_types = list(/datum/unarmed_attack/stomp, /datum/unarmed_attack/kick, /datum/unarmed_attack/punch, /datum/unarmed_attack/bite)
 	num_alternate_languages = 3
-	secondary_langs = list(LANGUAGE_BIRDSONG, LANGUAGE_UNATHI)
+	secondary_langs = list(LANGUAGE_UNATHI)
 	species_language = LANGUAGE_UNATHI
-	name_language = null
+	name_language = LANGUAGE_UNATHI
 	color_mult = 1
 	genders = list(MALE, FEMALE, PLURAL, NEUTER)
 	inherent_verbs = list(/mob/living/proc/flying_toggle,/mob/living/proc/flying_vore_toggle,/mob/living/proc/start_wings_hovering,/mob/living/carbon/human/proc/tie_hair)
-	digi_allowed = TRUE
 
-	min_age = 18
+	min_age = 19 //not a typo, Rapala consider adult age to be 19
 	max_age = 80
 
 	soft_landing = TRUE
 
 	base_color = "#EECEB3"
 
-	blurb = "An Avian species, coming from a distant planet, the Rapalas are the very proud race.\
-	Sol researchers have commented on them having a very close resemblance to the mythical race called 'Harpies',\
-	who are known for having massive winged arms and talons as feet. They've been clocked at speeds of over 35 miler per hour chasing the planet's many fish-like fauna.\
-	The Rapalan's home-world 'Verita' is a strangely habitable gas giant, while no physical earth exists, there are fertile floating islands orbiting around the planet from past asteroid activity."
+	blurb = "A coincidentally humanlike species, Rapala are a client species of the Unathi that have \
+	no genetic relation to humans in spite of the similar appearance. They have an unusual gene pairing of \
+	XX and XY, and VW and WW. They are capable of in atmosphere flight and have organs \
+	that make them more naturally attuned to learning the piloting of aircraft and spaceflight. Rapala \
+	society is hierarchical and communal, although not every individual will agree with this status quo."
 
 	wikilink="https://wiki.vore-station.net/Backstory#Rapala"
 
@@ -1102,7 +1090,7 @@
 	blurb = "A race of feathered raptors who developed alongside the Skrell, inhabiting \
 	the polar tundral regions outside of Skrell territory. Extremely fragile, they developed \
 	hunting skills that emphasized taking out their prey without themselves getting hit. They \
-	are only recently becoming known on human stations after reaching space with Skrell assistance."
+	are known for their communalism and pack based family structures."
 	wikilink="https://wiki.chompstation13.net/index.php?title=Teshari" //CHOMPedit: link to our wiki
 	catalogue_data = list(/datum/category_item/catalogue/fauna/teshari)
 
@@ -1112,14 +1100,13 @@
 	species_language = LANGUAGE_SCHECHI
 
 	min_age = 18
-	max_age = 45
+	max_age = 80
 
-	economic_modifier = 6
+	economic_modifier = 6 //I noticed this and the other mods were not the same, but we use ECO_MODIFIER for our calculation instead on virgo. In case anyone finds this and wonders why tesh are getting 60% of the pay (they aren't)
 
 	health_hud_intensity = 3
 
-	//male_sneeze_sound = list('sound/effects/mob_effects/tesharisneeze.ogg','sound/effects/mob_effects/tesharisneezeb.ogg') //CHOMPStation Edit Disable
-	//female_sneeze_sound = list('sound/effects/mob_effects/tesharisneeze.ogg','sound/effects/mob_effects/tesharisneezeb.ogg') //CHOMPStation Edit Disable
+	species_sounds = "Teshari"
 	center_offset = 0
 
 	blood_color = "#D514F7"
@@ -1145,12 +1132,12 @@
 	slowdown = -1
 	snow_movement = -2	// Ignores light snow
 	item_slowdown_mod = 2	// Tiny birds don't like heavy things
-	total_health = 50
-	brute_mod = 1.35
-	burn_mod =  1.35
+	total_health = 75 //CHOMPEdit
+	//brute_mod = 1.35 //CHOMPRemove
+	//burn_mod =  1.35 //CHOMPRemove
 	mob_size = MOB_MEDIUM
 	pass_flags = PASSTABLE
-	holder_type = /obj/item/holder/human
+	holder_type = /obj/item/holder/micro
 //	short_sighted = 1
 	has_vibration_sense = TRUE
 	blood_volume = 400
@@ -1214,13 +1201,14 @@
 		)
 
 	has_organ = list(
-		O_HEART =    /obj/item/organ/internal/heart,
-		O_LUNGS =    /obj/item/organ/internal/lungs,
-		O_VOICE = 	/obj/item/organ/internal/voicebox,
-		O_LIVER =    /obj/item/organ/internal/liver,
-		O_KIDNEYS =  /obj/item/organ/internal/kidneys,
-		O_BRAIN =    /obj/item/organ/internal/brain,
-		O_EYES =     /obj/item/organ/internal/eyes,
+		O_HEART =		/obj/item/organ/internal/heart,
+		O_LUNGS =		/obj/item/organ/internal/lungs,
+		O_VOICE =		/obj/item/organ/internal/voicebox,
+		O_LIVER =		/obj/item/organ/internal/liver,
+		O_KIDNEYS =		/obj/item/organ/internal/kidneys,
+		O_SPLEEN =		/obj/item/organ/internal/spleen,
+		O_BRAIN =		/obj/item/organ/internal/brain,
+		O_EYES =		/obj/item/organ/internal/eyes,
 		O_STOMACH =		/obj/item/organ/internal/stomach,
 		O_INTESTINE =	/obj/item/organ/internal/intestine
 		)
@@ -1317,7 +1305,6 @@
 	taken to calling these creatures 'Shadekin', and the name has generally stuck and spread. "		//TODO: Something more fitting for black-eyes
 	wikilink = "https://wiki.vore-station.net/Shadekin"
 	catalogue_data = list(/datum/category_item/catalogue/fauna/shadekin)
-	digi_allowed = TRUE
 
 	language = LANGUAGE_SHADEKIN
 	name_language = LANGUAGE_SHADEKIN
@@ -1356,8 +1343,7 @@
 	heat_level_3 = 1150
 
 	flags =  NO_DNA | NO_SLEEVE
-	spawn_flags = SPECIES_CAN_JOIN | SPECIES_IS_WHITELISTED | SPECIES_WHITELIST_SELECTABLE
-
+	spawn_flags = SPECIES_IS_RESTRICTED //SPECIES_CAN_JOIN | SPECIES_IS_WHITELISTED | SPECIES_WHITELIST_SELECTABLE CHOMPedit: disabled maybe forever
 	reagent_tag = IS_SHADEKIN		// for shadekin-unqiue chem interactions
 
 	flesh_color = "#FFC896"
@@ -1366,11 +1352,6 @@
 	color_mult = 1
 
 	//has_glowing_eyes = TRUE			// Applicable through traits.
-
-	//male_cough_sounds = null //CHOMPStation Edit
-	//female_cough_sounds = null //CHOMPStation Edit
-	//male_sneeze_sound = null //CHOMPStation Edit
-	//female_sneeze_sound = null //CHOMPStation Edit
 
 	speech_bubble_appearance = "ghost"
 
@@ -1389,6 +1370,7 @@
 		O_VOICE = 		/obj/item/organ/internal/voicebox,
 		O_LIVER =		/obj/item/organ/internal/liver,
 		O_KIDNEYS =		/obj/item/organ/internal/kidneys,
+		O_SPLEEN =		/obj/item/organ/internal/spleen,
 		O_BRAIN =		/obj/item/organ/internal/brain,
 		O_EYES =		/obj/item/organ/internal/eyes,
 		O_STOMACH =		/obj/item/organ/internal/stomach,
@@ -1427,10 +1409,11 @@
 	name_language = LANGUAGE_TERMINUS
 	species_language = LANGUAGE_TERMINUS
 	inherent_verbs = list(/mob/living/carbon/human/proc/lick_wounds,/mob/living/proc/shred_limb,/mob/living/carbon/human/proc/tie_hair)
-	digi_allowed = TRUE
 
 	min_age = 18
 	max_age = 80
+
+	species_sounds = "Vulpine"
 
 	//primitive_form = "" //We don't have fennec-monkey sprites.
 	spawn_flags = SPECIES_IS_RESTRICTED
@@ -1459,7 +1442,6 @@
 	darksight = 4 //Better hunters in the dark.
 	hunger_factor = 0.1 //In exchange, they get hungry a tad faster.
 	num_alternate_languages = 3
-	digi_allowed = TRUE
 
 	min_age = 18
 	max_age = 80
@@ -1491,7 +1473,7 @@
 	name = SPECIES_ALTEVIAN
 	name_plural = "Altevians"
 	icobase = 'icons/mob/human_races/r_altevian.dmi'
-	deform = 'icons/mob/human_races/r_def_altevian.dmi'
+	deform = 'icons/mob/human_races/r_altevian.dmi'
 	unarmed_types = list(/datum/unarmed_attack/stomp, /datum/unarmed_attack/kick, /datum/unarmed_attack/claws, /datum/unarmed_attack/bite/sharp)
 	num_alternate_languages = 3
 	secondary_langs = list(LANGUAGE_TAVAN)
@@ -1499,10 +1481,11 @@
 	name_language = null
 	color_mult = 1
 	inherent_verbs = list(/mob/living/carbon/human/proc/tie_hair)
-	digi_allowed = TRUE
 
 	min_age = 18
 	max_age = 80
+
+	species_sounds = "Mouse"
 
 	blurb = "The Altevian are a species of tall, rodent humanoids that are akin to rats for their features. \
 	The Altevian, unlike most species, do not have a home planet, nor system, adopting a fully nomadic lifestyle \
@@ -1560,7 +1543,6 @@
 	brute_mod = 0.8		//20% brute damage reduction
 	burn_mod =  1.15	//15% burn damage increase. They're spiders. Aerosol can+lighter = dead spiders.
 	throwforce_absorb_threshold = 10
-	digi_allowed = TRUE
 
 	num_alternate_languages = 3
 	species_language = LANGUAGE_VESPINAE
@@ -1569,13 +1551,10 @@
 	tail = "tail" //Spider tail.
 	icobase_tail = 1
 
+	species_component = list(/datum/component/weaver)
+
 	inherent_verbs = list(
-		/mob/living/carbon/human/proc/check_silk_amount,
-		/mob/living/carbon/human/proc/toggle_silk_production,
-		/mob/living/carbon/human/proc/weave_structure,
-		/mob/living/carbon/human/proc/weave_item,
-		/mob/living/carbon/human/proc/set_silk_color,
-		/mob/living/carbon/human/proc/tie_hair)
+	/mob/living/carbon/human/proc/tie_hair)
 
 	min_age = 18
 	max_age = 80
@@ -1607,10 +1586,6 @@
 	base_color 	= "#333333" //Blackish-gray
 	blood_color = "#0952EF" //Spiders have blue blood.
 
-	is_weaver = TRUE
-	silk_reserve = 500
-	silk_max_reserve = 1000
-
 	climb_mult = 0.75
 
 /datum/species/spider/handle_environment_special(var/mob/living/carbon/human/H)
@@ -1629,13 +1604,13 @@
 			coldshock = 16
 			H.eye_blurry = 5
 		H.shock_stage = min(H.shock_stage + coldshock, 160) //cold hurts and gives them pain messages, eventually weakening and paralysing, but doesn't damage.
-		return
+	..()
 
 /datum/species/werebeast
 	name = SPECIES_WEREBEAST
 	name_plural = "Werebeasts"
 	icobase = 'icons/mob/human_races/r_werebeast.dmi'
-	deform = 'icons/mob/human_races/r_def_werebeast.dmi'
+	deform = 'icons/mob/human_races/r_werebeast.dmi'
 	icon_template = 'icons/mob/human_races/r_werebeast.dmi'
 	tail = "tail"
 	unarmed_types = list(/datum/unarmed_attack/stomp, /datum/unarmed_attack/kick, /datum/unarmed_attack/claws, /datum/unarmed_attack/bite/sharp)
@@ -1660,7 +1635,7 @@
 	min_age = 18
 	max_age = 200
 
-	species_sounds = "Canine"  //CHOMPStation Edit - Species Sounds
+	species_sounds = "Canine"
 
 	blurb = "Big buff werewolves. These are a limited functionality event species that are not balanced for regular gameplay. Adminspawn only."
 
@@ -1710,7 +1685,6 @@
 	burn_mod =  1.15	//As vulnerable to burn as a Tajara.
 	base_species = "Xenochimera"
 	selects_bodytype = SELECTS_BODYTYPE_CUSTOM
-	digi_allowed = TRUE
 	has_vibration_sense = TRUE
 
 	num_alternate_languages = 3
@@ -1720,8 +1694,7 @@
 	tail = "tail"
 	icobase_tail = 1
 	inherent_verbs = list(
-		/mob/living/carbon/human/proc/reconstitute_form,
-		///mob/living/carbon/human/proc/sonar_ping,
+		/mob/living/carbon/human/proc/sonar_ping,
 		/mob/living/carbon/human/proc/tie_hair,
 		/mob/living/carbon/human/proc/lick_wounds,
 		/mob/living/carbon/human/proc/shapeshifter_reassemble)		//Xenochimera get all the special verbs since they can't select traits.
@@ -1731,7 +1704,7 @@
 	min_age = 18
 	max_age = 80
 
-	species_sounds = "Unset" // CHOMPEdit: Chimera get a default/safety of unset, going off their icon base if there's none overriding.
+	species_sounds = "Unset" // Chimera get a default/safety of unset, going off their icon base if there's none overriding.
 
 	blurb = "Some amalgamation of different species from across the universe,with extremely unstable DNA, making them unfit for regular cloners. \
 	Widely known for their voracious nature and violent tendencies when stressed or left unfed for long periods of time. \
@@ -1760,6 +1733,7 @@
 		O_VOICE =		/obj/item/organ/internal/voicebox,
 		O_LIVER =		/obj/item/organ/internal/liver,
 		O_KIDNEYS =		/obj/item/organ/internal/kidneys,
+		O_SPLEEN =		/obj/item/organ/internal/spleen,
 		O_BRAIN =		/obj/item/organ/internal/brain,
 		O_EYES =		/obj/item/organ/internal/eyes,
 		O_STOMACH =		/obj/item/organ/internal/stomach,
@@ -1772,256 +1746,73 @@
 
 	reagent_tag = IS_CHIMERA
 
+	species_component = list(/datum/component/xenochimera)
+
 /datum/species/xenochimera/handle_environment_special(var/mob/living/carbon/human/H)
-	//If they're KO'd/dead, or reviving, they're probably not thinking a lot about much of anything.
-	if(!H.stat || !(H.revive_ready == REVIVING_NOW || H.revive_ready == REVIVING_DONE))
-		handle_feralness(H)
-
-	//While regenerating
-	if(H.revive_ready == REVIVING_NOW || H.revive_ready == REVIVING_DONE)
-		H.stunned = 5 // CHOMPEdit - Crawling is a thing now
-		H.canmove = 0
-		H.does_not_breathe = TRUE
-		var/regen_sounds = H.regen_sounds
-		if(prob(2)) // 2% chance of playing squelchy noise while reviving, which is run roughly every 2 seconds/tick while regenerating.
-			playsound(H, pick(regen_sounds), 30)
-			H.visible_message(span_danger("<p>" + span_huge("[H.name]'s motionless form shudders grotesquely, rippling unnaturally.") + "</p>"))
-		if(!H.lying) //CHOMPStation Edit
-			H.lay_down() //CHOMPStation Edit
 	//Cold/pressure effects when not regenerating
-	else
-		var/datum/gas_mixture/environment = H.loc.return_air()
-		var/pressure2 = environment.return_pressure()
-		var/adjusted_pressure2 = H.calculate_affecting_pressure(pressure2)
+	var/datum/gas_mixture/environment = H.loc.return_air()
+	var/pressure2 = environment.return_pressure()
+	var/adjusted_pressure2 = H.calculate_affecting_pressure(pressure2)
 
-		//Very low pressure damage
-		if(adjusted_pressure2 <= 20)
-			H.take_overall_damage(brute=LOW_PRESSURE_DAMAGE, used_weapon = "Low Pressure")
-		//they handle areas where they can't breathe better than most, but it still lowers their effective health as well as all the other bad stuff that comes with unbreathable environments
-		if(H.getOxyLoss() >= 50)
-			H.does_not_breathe = TRUE
+	//Very low pressure damage
+	if(adjusted_pressure2 <= 20)
+		H.take_overall_damage(brute=LOW_PRESSURE_DAMAGE, used_weapon = "Low Pressure")
+	//they handle areas where they can't breathe better than most, but it still lowers their effective health as well as all the other bad stuff that comes with unbreathable environments
+	if(H.getOxyLoss() >= 50)
+		H.does_not_breathe = TRUE
 
-		//Cold hurts and gives them pain messages, eventually weakening and paralysing, but doesn't damage or trigger feral.
-		//NB: 'body_temperature' used here is the 'setpoint' species var
-		var/temp_diff = body_temperature - H.bodytemperature
-		if(temp_diff >= 50)
-			H.shock_stage = min(H.shock_stage + (temp_diff/20), 160) // Divided by 20 is the same as previous numbers, but a full scale
-			H.eye_blurry = max(5,H.eye_blurry)
-
-/datum/species/xenochimera/proc/handle_feralness(var/mob/living/carbon/human/H)
-	//first, calculate how stressed the chimera is
-	var/laststress = 0
-	var/obj/item/organ/internal/brain/B = H.internal_organs_by_name[O_BRAIN]
-	if(B) //if you don't have a chimera brain in a chimera body somehow, you don't get the feraless protection
-		laststress = B.laststress
-
-	//Low-ish nutrition has messages and can eventually cause feralness
-	var/hunger = max(0, 150 - H.nutrition)
-
-	//pain makes feralness a thing
-	var/shock = 0.75*H.traumatic_shock
-
-	//Caffeinated or otherwise overexcited xenochimera can become feral and have special messages
-	var/jittery = max(0, H.jitteriness - 100)
-
-	//To reduce distant object references
-	var/feral = H.feral
-
-	//Are we in danger of ferality?
-	var/danger = FALSE
-	var/feral_state = FALSE
-
-	//finally, calculate the current stress total the chimera is operating under, and the cause
-	var/currentstress = (hunger + shock + jittery)
-	var/cause = "stress"
-	if(hunger > shock && hunger > jittery)
-		cause = "hunger"
-	else if (shock > hunger && shock > jittery)
-		cause = "shock"
-	else if (jittery > shock && jittery > hunger)
-		cause = "jittery"
-
-	//check to see if they go feral if they weren't before
-	if(!feral && !isbelly(H.loc))
-		// if stress is below 15, no chance of snapping. Also if they weren't feral before, they won't suddenly become feral unless they get MORE stressed
-		if((currentstress > laststress) && prob(clamp(currentstress-15, 0, 100)) )
-			go_feral(H, currentstress, cause)
-			feral = currentstress //update the local var
-
-		//they didn't go feral, give 'em a chance of hunger messages
-		else if(H.nutrition <= 200 && prob(0.5))
-			switch(H.nutrition)
-				if(150 to 200)
-					to_chat(H,span_info("You feel rather hungry. It might be a good idea to find some some food..."))
-				if(100 to 150)
-					to_chat(H,span_warning("You feel like you're going to snap and give in to your hunger soon... It would be for the best to find some [pick("food","prey")] to eat..."))
-					danger = TRUE
-
-	//now the check's done, update their brain so it remembers how stressed they were
-	if(B && !isbelly(H.loc)) //another sanity check for brain implant shenanigans, also no you don't get to hide in a belly and get your laststress set to a huge amount to skip rolls
-		B.laststress = currentstress
-
-	// Handle being feral
-	if(feral)
-		//We're feral
-		feral_state = TRUE
-
-		//If they're still stressed, they stay feral
-		if(currentstress >= 15)
-			danger = TRUE
-			feral = max(feral, currentstress)
-
-		else
-			feral = max(0,--feral)
-
-			// Being in a belly or in the darkness decreases stress further. Helps mechanically reward players for staying in darkness + RP'ing appropriately. :9
-			var/turf/T = get_turf(H)
-			if(feral && (isbelly(H.loc) || T.get_lumcount() <= 0.1))
-				feral = max(0,--feral)
-
-		//Set our real mob's var to our temp var
-		H.feral = feral
-
-		//Did we just finish being feral?
-		if(!feral)
-			feral_state = FALSE
-			to_chat(H,span_info("Your thoughts start clearing, your feral urges having passed - for the time being, at least."))
-			log_and_message_admins("is no longer feral.", H)
-			update_xenochimera_hud(H, danger, feral_state)
-			return
-
-		//If they lose enough health to hit softcrit, handle_shock() will keep resetting this. Otherwise, pissed off critters will lose shock faster than they gain it.
-		H.shock_stage = max(H.shock_stage-(feral/20), 0)
-
-		//Handle light/dark areas
-		var/turf/T = get_turf(H)
-		if(!T)
-			update_xenochimera_hud(H, danger, feral_state)
-			return //Nullspace
-		var/darkish = T.get_lumcount() <= 0.1
-
-		//Don't bother doing heavy lifting if we weren't going to give emotes anyway.
-		if(!prob(1))
-
-			//This is basically the 'lite' version of the below block.
-			var/list/nearby = H.living_mobs(world.view)
-
-			//Not in the dark, or a belly, and out in the open.
-			if(!darkish && isturf(H.loc) && !isbelly(H.loc)) // Added specific check for if in belly
-
-				//Always handle feral if nobody's around and not in the dark.
-				if(!nearby.len)
-					H.handle_feral()
-
-				//Rarely handle feral if someone is around
-				else if(prob(1))
-					H.handle_feral()
-
-			//And bail
-			update_xenochimera_hud(H, danger, feral_state)
-			return
-
-		// In the darkness, or "hidden", or in a belly. No need for custom scene-protection checks as it's just an occational infomessage.
-		if(darkish || !isturf(H.loc) || isbelly(H.loc)) // Specific check for if in belly. !isturf should do this, but JUST in case.
-			// If hurt, tell 'em to heal up
-			if (cause == "shock")
-				to_chat(H,span_info("This place seems safe, secure, hidden, a place to lick your wounds and recover..."))
-
-			//If hungry, nag them to go and find someone or something to eat.
-			else if(cause == "hunger")
-				to_chat(H,span_info("Secure in your hiding place, your hunger still gnaws at you. You need to catch some food..."))
-
-			//If jittery, etc
-			else if(cause == "jittery")
-				to_chat(H,span_info("sneakysneakyyesyesyescleverhidingfindthingsyessssss"))
-
-			//Otherwise, just tell them to keep hiding.
-			else
-				to_chat(H,span_info("...safe..."))
-
-		// NOT in the darkness
-		else
-
-			//Twitch twitch
-			if(!H.stat)
-				H.emote("twitch")
-
-			var/list/nearby = H.living_mobs(world.view)
-
-			// Someone/something nearby
-			if(nearby.len)
-				var/M = pick(nearby)
-				if(cause == "shock")
-					to_chat(H,span_danger("You're hurt, in danger, exposed, and [M] looks to be a little too close for comfort..."))
-				else
-					to_chat(H,span_danger("Every movement, every flick, every sight and sound has your full attention, your hunting instincts on high alert... In fact, [M] looks extremely appetizing..."))
-
-			// Nobody around
-			else
-				if(cause == "hunger")
-					to_chat(H,span_danger("Confusing sights and sounds and smells surround you - scary and disorienting it may be, but the drive to hunt, to feed, to survive, compels you."))
-				else if(cause == "jittery")
-					to_chat(H,span_danger("yesyesyesyesyesyesgetthethingGETTHETHINGfindfoodsfindpreypounceyesyesyes"))
-				else
-					to_chat(H,span_danger("Confusing sights and sounds and smells surround you, this place is wrong, confusing, frightening. You need to hide, go to ground..."))
-
-	// HUD update time
-	update_xenochimera_hud(H, danger, feral_state)
-
-/datum/species/xenochimera/proc/go_feral(var/mob/living/carbon/human/H, var/stress, var/cause)
-	// Going feral due to hunger
-	if(cause == "hunger")
-		to_chat(H,span_danger(span_large("Something in your mind flips, your instincts taking over, no longer able to fully comprehend your surroundings as survival becomes your primary concern - you must feed, survive, there is nothing else. Hunt. Eat. Hide. Repeat.")))
-		log_and_message_admins("has gone feral due to hunger.", H)
-
-	// If they're hurt, chance of snapping.
-	else if(cause == "shock")
-		//If the majority of their shock is due to halloss, give them a different message (3x multiplier on check as halloss is 2x - meaning t_s must be at least 3x for other damage sources to be the greater part)
-		if(3*H.halloss >= H.traumatic_shock)
-			to_chat(H,span_danger(span_large("The pain! It stings! Got to get away! Your instincts take over, urging you to flee, to hide, to go to ground, get away from here...")))
-			log_and_message_admins("has gone feral due to halloss.", H)
-
-		//Majority due to other damage sources
-		else
-			to_chat(H,span_danger(span_large("Your fight-or-flight response kicks in, your injuries too much to simply ignore - you need to flee, to hide, survive at all costs - or destroy whatever is threatening you.")))
-			log_and_message_admins("has gone feral due to injury.", H)
-
-	//No hungry or shock, but jittery
-	else if(cause == "jittery")
-		to_chat(H,span_warning(span_large("Suddenly, something flips - everything that moves is... potential prey. A plaything. This is great! Time to hunt!")))
-		log_and_message_admins("has gone feral due to jitteriness.", H)
-
-	else // catch-all just in case something weird happens
-		to_chat(H,span_warning(span_large("The stress of your situation is too much for you, and your survival instincts kick in!")))
-		log_and_message_admins("has gone feral for unknown reasons.", H)
-	//finally, set their feral var
-	H.feral = stress
-	if(!H.stat)
-		H.emote("twitch")
+	//Cold hurts and gives them pain messages, eventually weakening and paralysing, but doesn't damage or trigger feral.
+	//NB: 'body_temperature' used here is the 'setpoint' species var
+	var/temp_diff = body_temperature - H.bodytemperature
+	if(temp_diff >= 50)
+		H.shock_stage = min(H.shock_stage + (temp_diff/20), 160) // Divided by 20 is the same as previous numbers, but a full scale
+		H.eye_blurry = max(5,H.eye_blurry)
+	..()
 
 /datum/species/xenochimera/get_race_key()
 	var/datum/species/real = GLOB.all_species[base_species]
 	return real.race_key
 
-/datum/species/xenochimera/proc/update_xenochimera_hud(var/mob/living/carbon/human/H, var/danger, var/feral)
-	if(H.xenochimera_danger_display)
-		H.xenochimera_danger_display.invisibility = 0
-		if(danger && feral)
-			H.xenochimera_danger_display.icon_state = "danger11"
-		else if(danger && !feral)
-			H.xenochimera_danger_display.icon_state = "danger10"
-		else if(!danger && feral)
-			H.xenochimera_danger_display.icon_state = "danger01"
-		else
-			H.xenochimera_danger_display.icon_state = "danger00"
+/datum/species/sparkledog //Exists primarily as an april fools joke, along with everything tied to it!
+	name = SPECIES_SPARKLE
+	name_plural = "Sparklies"
+	icobase = 'icons/mob/human_races/r_sparkle.dmi'
+	icobase_tail = 1
+	unarmed_types = list(/datum/unarmed_attack/stomp, /datum/unarmed_attack/kick, /datum/unarmed_attack/claws, /datum/unarmed_attack/bite/sharp)
+	slowdown = -0.5
+	brute_mod = 1.5
+	burn_mod =  1.5
+	bloodloss_rate = 1.5
+	toxins_mod =    0.5
+	radiation_mod = 0
+	flash_mod =     2
+	siemens_coefficient = 10
 
-	return
+	darksight = 2
 
-/obj/screen/xenochimera
-	icon = 'icons/mob/chimerahud.dmi'
-	invisibility = 101
+	num_alternate_languages = 3
+	language = LANGUAGE_SPARKLE
+	species_language = LANGUAGE_SPARKLE
+	secondary_langs = list(LANGUAGE_SPARKLE, LANGUAGE_SOL_COMMON)
+	color_mult = 1
+	assisted_langs = list(LANGUAGE_EAL, LANGUAGE_ROOTLOCAL, LANGUAGE_ROOTGLOBAL, LANGUAGE_VOX, LANGUAGE_PROMETHEAN)
+	inherent_verbs = list(/mob/living/carbon/human/proc/tie_hair, /mob/living/proc/toggle_sparkles, /mob/living/proc/healing_rainbows, /mob/living/carbon/human/proc/play_dead)
+	min_age = 18
+	max_age = 21
 
-/obj/screen/xenochimera/danger_level
-	name = "danger level"
-	icon_state = "danger00"		//first number is bool of whether or not we're in danger, second is whether or not we're feral
-	alpha = 200
+	pass_flags = PASSTABLE
+
+	blurb = "Th3 ultimate lifeform, th3 l@st of th3 sp@rkl3 d0gg0s. M0r3 p0w3rful th@nn @ny 0th3r sp3ci3s in th3 3ntir3 un1v3rs3!!! When 3v3ryth1ng is crashing d0wn, y0u c@nn always r3ly 0n th3m to s@v3 th3 d@y. N0 0n3 3ls3 h@s th@t k1nd of str3ngth. R@wr XD #sp@rkl3d0gg0 #s@v1ngth3d@y #n0b0dyc@r3s"
+
+	wikilink="https://wiki.vore-station.net/"
+
+	primitive_form = SPECIES_MONKEY_VULPKANIN
+
+	genders = list(MALE, FEMALE, PLURAL, NEUTER)
+
+	spawn_flags = SPECIES_CAN_JOIN | SPECIES_IS_WHITELISTED | SPECIES_WHITELIST_SELECTABLE
+	appearance_flags = HAS_HAIR_COLOR | HAS_LIPS | HAS_UNDERWEAR | HAS_EYE_COLOR
+
+	flesh_color = "#ffffff"
+	base_color = "#ffffff"
+	blood_color = "#ff00d9"

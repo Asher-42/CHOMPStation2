@@ -22,7 +22,7 @@
 
 /obj/item/mecha_parts/mecha_equipment/omni_shield/Destroy()
 	QDEL_NULL(shields)
-	..()
+	. = ..()
 
 /obj/item/mecha_parts/mecha_equipment/omni_shield/attach(obj/mecha/M as obj)
 	. = ..()
@@ -44,11 +44,11 @@
 		if(shields.active)
 			set_ready_state(FALSE)
 			step_delay = 4
-			log_message("Activated.")
+			src.mecha_log_message("Activated.")
 		else
 			set_ready_state(TRUE)
 			step_delay = initial(step_delay)
-			log_message("Deactivated.")
+			src.mecha_log_message("Deactivated.")
 
 /obj/item/mecha_parts/mecha_equipment/omni_shield/Topic(href, href_list)
 	..()
@@ -91,7 +91,7 @@
 /obj/item/shield_projector/rectangle/mecha/Destroy()
 	UnregisterSignal(my_mech, COMSIG_OBSERVER_MOVED)
 	my_mech = null
-	..()
+	. = ..()
 
 /obj/item/shield_projector/rectangle/mecha/create_shield()
 	. = ..()

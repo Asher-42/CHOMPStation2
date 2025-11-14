@@ -9,11 +9,10 @@ import {
   Stack,
   Tabs,
 } from 'tgui-core/components';
-
+import { DestructiveAnalyzer } from '../DestructiveAnalyzer';
 import { ConstructorEnum, type Data, Tab } from './data';
 import { Constructor } from './pages/Constructor';
 import { DesignList } from './pages/DesignList';
-import { DestructiveAnalyzer } from './pages/DestructiveAnalyzer';
 import { LockScreen } from './pages/LockScreen';
 import { Misc } from './pages/Misc';
 import { ResearchList } from './pages/ResearchList';
@@ -36,15 +35,21 @@ export const PaginationChevrons = (props: { target: string }) => {
 
   return (
     <>
-      <Button icon="undo" onClick={() => act(target, { reset: true })} />
-      <Button
-        icon="chevron-left"
-        onClick={() => act(target, { reverse: -1 })}
-      />
-      <Button
-        icon="chevron-right"
-        onClick={() => act(target, { reverse: 1 })}
-      />
+      <Stack.Item>
+        <Button icon="undo" onClick={() => act(target, { reset: true })} />
+      </Stack.Item>
+      <Stack.Item>
+        <Button
+          icon="chevron-left"
+          onClick={() => act(target, { reverse: -1 })}
+        />
+      </Stack.Item>
+      <Stack.Item>
+        <Button
+          icon="chevron-right"
+          onClick={() => act(target, { reverse: 1 })}
+        />
+      </Stack.Item>
     </>
   );
 };

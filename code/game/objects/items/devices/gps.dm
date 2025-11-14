@@ -113,6 +113,7 @@ GLOBAL_LIST_EMPTY(GPS_list)
 	return (target.z in reachable_z_levels)
 
 /obj/item/gps/proc/update_compass(var/update_compass_icon)
+	SIGNAL_HANDLER
 	compass.hide_waypoints(FALSE)
 	var/turf/my_turf = get_turf(src)
 	for(var/thing in tracking_devices)
@@ -160,7 +161,7 @@ GLOBAL_LIST_EMPTY(GPS_list)
 	update_holder()
 	update_icon()
 
-/obj/item/gps/emp_act(severity)
+/obj/item/gps/emp_act(severity, recursive)
 	if(emped) // Without a fancy callback system, this will have to do.
 		return
 	var/severity_modifier = severity ? severity : 4 // In case emp_act gets called without any arguments.
@@ -327,7 +328,7 @@ GLOBAL_LIST_EMPTY(GPS_list)
 
 	if(href_list["tag"])
 		var/a = tgui_input_text(usr, "Please enter desired tag.", name, gps_tag, 10)
-		a = uppertext(copytext(sanitize(a), 1, 11))
+		a = uppertext(copytext(a, 1, 11))
 		if(in_range(src, usr))
 			gps_tag = a
 			name = "global positioning system ([gps_tag])"

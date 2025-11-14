@@ -7,7 +7,7 @@
 	event_type = /datum/event2/event/comms_blackout
 
 /datum/event2/meta/comms_blackout/get_weight()
-	return 50 + metric.count_people_in_department(DEPARTMENT_EVERYONE) * 5
+	return 50 + GLOB.metric.count_people_in_department(DEPARTMENT_EVERYONE) * 5
 
 
 
@@ -21,7 +21,7 @@
 	if(prob(33))
 		command_announcement.Announce(alert, new_sound = 'sound/misc/interference.ogg')
 	// AIs will always know if there's a comm blackout, rogue AIs could then lie about comm blackouts in the future while they shutdown comms
-	for(var/mob/living/silicon/ai/A in player_list)
+	for(var/mob/living/silicon/ai/A in GLOB.player_list)
 		to_chat(A, span_boldwarning("<br>"))
 		to_chat(A, span_boldwarning("[alert]"))
 		to_chat(A, span_boldwarning("<br>"))
@@ -29,15 +29,15 @@
 /datum/event2/event/comms_blackout/start()
 	if(prob(50))
 		// One in two chance for the radios to turn i%t# t&_)#%, which can be more alarming than radio silence.
-		log_debug("Doing partial outage of telecomms.")
+		log_game("Doing partial outage of telecomms.")
 		for(var/obj/machinery/telecomms/processor/P in telecomms_list)
 			P.emp_act(1)
 	else
 		// Otherwise just shut everything down, madagascar style.
-		log_debug("Doing complete outage of telecomms.")
+		log_game("Doing complete outage of telecomms.")
 		for(var/obj/machinery/telecomms/T in telecomms_list)
 			T.emp_act(1)
 
 	// Communicators go down no matter what.
-	for(var/obj/machinery/exonet_node/N in machines)
+	for(var/obj/machinery/exonet_node/N in GLOB.machines)
 		N.emp_act(1)

@@ -85,6 +85,8 @@
 	blacklisted_types += subtypesof(/obj/item/toy/plushie/therapy)
 	blacklisted_types += subtypesof(/obj/item/toy/plushie/fluff)
 	blacklisted_types += /obj/item/toy/plushie/borgplushie/drake //VOREStation addition
+	blacklisted_types += /obj/item/toy/plushie/dragon/gold_east
+	blacklisted_types += /obj/item/toy/plushie/customizable
 	for(var/obj/item/toy/plushie/plushie_type as anything in subtypesof(/obj/item/toy/plushie) - blacklisted_types)
 		plushies[initial(plushie_type.name)] = plushie_type
 	gear_tweaks += new/datum/gear_tweak/path(sortAssoc(plushies))
@@ -312,6 +314,11 @@
 	toytype["Classic"] = /obj/item/toy/chewtoy/tall/poly
 	gear_tweaks += new/datum/gear_tweak/path(toytype)
 	gear_tweaks += gear_tweak_free_color_choice
+
+/datum/gear/ducky
+	display_name = "rubber ducky"
+	description = "A rubbery friend to make your bathtime better."
+	path = /obj/item/bikehorn/rubberducky
 
 /datum/gear/textmug
 	display_name = "mug with text"

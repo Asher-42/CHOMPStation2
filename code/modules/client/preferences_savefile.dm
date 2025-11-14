@@ -1,5 +1,5 @@
 #define SAVEFILE_VERSION_MIN	8
-#define SAVEFILE_VERSION_MAX	16
+#define SAVEFILE_VERSION_MAX	18
 
 /*
 SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Carn
@@ -41,45 +41,63 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 
 	// Migration for client preferences
 	if(current_version < 13)
-		log_debug("[client_ckey] preferences migrating from [current_version] to v13....")
+		log_world("[client_ckey] preferences migrating from [current_version] to v13....")
 		to_chat(client, span_danger("Migrating savefile from version [current_version] to v13..."))
 
 		migration_13_preferences(S)
 
-		log_debug("[client_ckey] preferences successfully migrated from [current_version] to v13.")
+		log_world("[client_ckey] preferences successfully migrated from [current_version] to v13.")
 		to_chat(client, span_danger("v13 savefile migration complete."))
 
 	// Migration for nifs
 	if(current_version < 14)
-		log_debug("[client_ckey] preferences migrating from [current_version] to v14....")
+		log_world("[client_ckey] preferences migrating from [current_version] to v14....")
 		to_chat(client, span_danger("Migrating savefile from version [current_version] to v14..."))
 
 		migration_14_nifs(S)
 
-		log_debug("[client_ckey] preferences successfully migrated from [current_version] to v14.")
+		log_world("[client_ckey] preferences successfully migrated from [current_version] to v14.")
 		to_chat(client, span_danger("v14 savefile migration complete."))
 
 	// Migration for nifs, again, to get rid of the /device path
 	if(current_version < 15)
-		log_debug("[client_ckey] preferences migrating from [current_version] to v15....")
+		log_world("[client_ckey] preferences migrating from [current_version] to v15....")
 		to_chat(client, span_danger("Migrating savefile from version [current_version] to v15..."))
 
 		migration_15_nif_path(S)
 
-		log_debug("[client_ckey] preferences successfully migrated from [current_version] to v15.")
+		log_world("[client_ckey] preferences successfully migrated from [current_version] to v15.")
 		to_chat(client, span_danger("v15 savefile migration complete."))
 
 	// Migration for colors
 	if(current_version < 16)
-		log_debug("[client_ckey] preferences migrating from [current_version] to v16....")
+		log_world("[client_ckey] preferences migrating from [current_version] to v16....")
 		to_chat(client, span_danger("Migrating savefile from version [current_version] to v16..."))
 
 		migration_16_colors(S)
 
-		log_debug("[client_ckey] preferences successfully migrated from [current_version] to v16.")
+		log_world("[client_ckey] preferences successfully migrated from [current_version] to v16.")
 		to_chat(client, span_danger("v16 savefile migration complete."))
 
+	// Migration for old named tails so downstream doesn't have their savefiles borked
+	if(current_version < 17)
+		log_world("[client_ckey] preferences migrating from [current_version] to v17....")
+		to_chat(client, span_danger("Migrating savefile from version [current_version] to v17..."))
 
+		migration_17_tails(S)
+
+		log_world("[client_ckey] preferences successfully migrated from [current_version] to v17.")
+		to_chat(client, span_danger("v17 savefile migration complete."))
+
+	// Migration for jukebox volume from 0-1 to 0-100
+	if(current_version < 18)
+		log_world("[client_ckey] preferences migrating from [current_version] to v18....")
+		to_chat(client, span_danger("Migrating savefile from version [current_version] to v18..."))
+
+		migration_18_jukebox(S)
+
+		log_world("[client_ckey] preferences successfully migrated from [current_version] to v18.")
+		to_chat(client, span_danger("v18 savefile migration complete."))
 /datum/preferences/proc/update_character(current_version, list/save_data)
 	// Migration from BYOND savefiles to JSON: Important milemark.
 	if(current_version == -3)
@@ -88,7 +106,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 
 /// Migrates from byond savefile to json savefile
 /datum/preferences/proc/try_savefile_type_migration()
-	log_debug("[client_ckey] preferences migrating from savefile to JSON...")
+	log_world("[client_ckey] preferences migrating from savefile to JSON...")
 	to_chat(client, span_danger("Savefile migration to JSON in progress..."))
 
 	load_path(client.ckey, "preferences.sav") // old save file
@@ -100,7 +118,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	json_savefile.import_byond_savefile(new /savefile(old_path))
 	json_savefile.save()
 
-	log_debug("[client_ckey] preferences successfully migrated from savefile to JSON.")
+	log_world("[client_ckey] preferences successfully migrated from savefile to JSON.")
 	to_chat(client, span_danger("Savefile migration to JSON is complete."))
 
 	return TRUE
@@ -134,7 +152,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	savefile.set_entry("lastnews",		lastnews)
 	savefile.set_entry("lastlorenews",	lastlorenews)
 
-/datum/preferences/proc/load_preferences()
+/datum/preferences/proc/load_preferences(skip_client)
 	if(!savefile)
 		stack_trace("Attempted to load the preferences of [client] without a savefile; did you forget to call load_savefile?")
 		load_savefile()
@@ -150,7 +168,8 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 		fcopy(savefile.path, bacpath) //byond helpfully lets you use a savefile for the first arg.
 		return FALSE
 
-	apply_all_client_preferences()
+	if(!skip_client)
+		apply_all_client_preferences()
 
 	load_early_prefs()
 	sanitize_early_prefs()

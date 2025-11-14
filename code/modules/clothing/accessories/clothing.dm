@@ -94,16 +94,21 @@
 
 /obj/item/clothing/accessory/hawaiian_random
 	name = "random hawaiian shirt"
-	desc = "A random set of hawaiian shirts for style."
 
-/obj/item/clothing/accessory/hawaiian_random/New()
-	return pick(
-			prob(2);/obj/item/clothing/accessory/hawaiian,
-			prob(2);/obj/item/clothing/accessory/hawaiian/blue,
-			prob(2);/obj/item/clothing/accessory/hawaiian/pink,
-			prob(2);/obj/item/clothing/accessory/hawaiian/red,
-			prob(2);/obj/item/clothing/accessory/hawaiian/yellow
-			)
+/obj/item/clothing/accessory/hawaii/random/Initialize(mapload)
+	var/random_color = pick("blue", "pink", "red", "yellow", "cyan")
+	icon_state = "hawaiian_[random_color]"
+	name = "[random_color] hawaiian shirt"
+	. = ..()
+
+/obj/item/clothing/accessory/hawaii/random_flower
+	name = "flower-pattern shirt"
+
+/obj/item/clothing/accessory/hawaii/random_flower/Initialize(mapload)
+	if(prob(50))
+		icon_state = "hawaiian_red"
+	color = color_rotation(rand(-11,12)*15)
+	. = ..()
 
 /*
  * 80s
@@ -137,13 +142,16 @@
 	desc = "A classic themed neosilk tropical shirt. This one makes you feel out of touch."
 	icon_state = "miamivice"
 
-/obj/item/clothing/accessory/tropical_random/New()
-	return pick(
-			prob(2);/obj/item/clothing/accessory/tropical,
-			prob(2);/obj/item/clothing/accessory/tropical/green,
-			prob(2);/obj/item/clothing/accessory/tropical/pink,
-			prob(2);/obj/item/clothing/accessory/tropical/blue
-			)
+/obj/item/clothing/accessory/tropical_random/Initialize(mapload)
+	. = ..()
+	var/obj/item/clothing/accessory/new_item = pick(/obj/item/clothing/accessory/tropical,
+													/obj/item/clothing/accessory/tropical/green,
+													/obj/item/clothing/accessory/tropical/pink,
+													/obj/item/clothing/accessory/tropical/blue)
+
+	name = initial(new_item.name)
+	desc = initial(new_item.desc)
+	icon_state = initial(new_item.icon_state)
 
 /*
  * Chaps
@@ -183,15 +191,7 @@
 		SPECIES_TESHARI = 'icons/inventory/suit/mob_teshari.dmi'
 	)
 
-//YWEdit Start, Makes ponchos use teshari sprite
-/obj/item/clothing/accessory/poncho/get_worn_icon_file(var/body_type,var/slot_name,var/default_icon,var/inhands)
-	if(body_type == SPECIES_TESHARI)
-		if(!inhands)
-			return 'icons/inventory/suit/mob_teshari.dmi'
-	else
-		return ..()
-//YWEdit end
-
+//This is really scuffed and needs fixing sometime.
 /obj/item/clothing/accessory/poncho/equipped() //Solution for race-specific sprites for an accessory which is also a suit. Suit icons break if you don't use icon override which then also overrides race-specific sprites.
 	..()
 	var/mob/living/carbon/human/H = loc

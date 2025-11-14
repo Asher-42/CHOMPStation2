@@ -48,16 +48,6 @@
 		"bio" = 1000,
 		"rad" = 1000)
 
-	armor_soak = list(
-		"melee" = 1000,
-		"bullet" = 1000,
-		"laser" = 1000,
-		"energy" = 1000,
-		"bomb" = 1000,
-		"bio" = 1000,
-		"rad" = 1000
-		)
-
 	movement_cooldown = 5
 	copy_prefs_to_mob = FALSE
 	player_msg = "The dog accepts you into itself, allowing you to dictate what will happen. The dog occasionally thinks unknowable thoughts, though you can understand some of its needs and desires. The dog shares its experience with you. You can navigate space, 'transition' to certain locations, and you can dine upon some of the space weather. The dog doesn't seem to know how any of this works exactly, this is just how things are for the dog, they come as naturally to the dog as blinking."
@@ -77,7 +67,7 @@
 		return ..()
 	var/list/possible_targets = list()
 
-	for(var/mob/living/player in player_list)
+	for(var/mob/living/player in GLOB.player_list)
 		if(!(player.z in child_om_marker.map_z))
 			continue
 		if(!(isliving(player) && istype(player.loc,/turf/simulated/floor/outdoors/fur) && player.client))
@@ -92,7 +82,7 @@
 	if(!that_one)
 		return ..()
 	to_chat(that_one, span_danger("\The [user]'s hand reaches toward you!!!"))
-	if(!do_after(user, 3 SECONDS, src))
+	if(!do_after(user, 3 SECONDS, target = src))
 		return ..()
 	if(!istype(that_one.loc,/turf/simulated/floor/outdoors/fur))
 		to_chat(user, span_warning("\The [that_one] got away..."))
@@ -127,7 +117,7 @@
 	if(istype(loc, /turf/unsimulated/map))
 		if(!invisibility)
 			invisibility = INVISIBILITY_ABSTRACT
-			child_om_marker.invisibility = 0
+			child_om_marker.invisibility = INVISIBILITY_NONE
 			ai_holder.base_wander_delay = 50
 			ai_holder.wander_delay = 1
 			melee_damage_lower = 50
@@ -137,7 +127,7 @@
 			movement_cooldown = 5
 
 	else if(invisibility)
-		invisibility = 0
+		invisibility = INVISIBILITY_NONE
 		child_om_marker.invisibility = INVISIBILITY_ABSTRACT
 		ai_holder.base_wander_delay = 5
 		ai_holder.wander_delay = 1
@@ -147,10 +137,14 @@
 		child_om_marker.set_light(0)
 		movement_cooldown = 0
 
-/mob/living/simple_mob/vore/overmap/stardog/perform_the_nom(mob/living/user, mob/living/prey, mob/living/pred, obj/belly/belly, delay)
+/mob/living/simple_mob/vore/overmap/stardog/perform_the_nom(mob/living/user, mob/living/prey, mob/living/pred, obj/belly/belly, delay_time)
 	to_chat(src, span_warning("You can't do that."))	//The dog can move back and forth between the overmap.
 	return															//If it can do normal vore mechanics, it can carry players to the OM,
 																	//and release them there. I think that's probably a bad idea.
+
+/mob/living/simple_mob/vore/overmap/stardog/begin_instant_nom(mob/living/user, mob/living/prey, mob/living/pred, obj/belly/belly)
+	to_chat(src, span_warning("You can't do that."))
+	return
 
 /mob/living/simple_mob/vore/overmap/stardog/Initialize(mapload)
 	. = ..()
@@ -262,7 +256,7 @@
 
 	to_chat(src, span_notice("You begin to eat \the [E]..."))
 
-	if(!do_after(src, 20 SECONDS, E, exclusive = TRUE))
+	if(!do_after(src, 20 SECONDS, target = E))
 		return
 	to_chat(src, span_notice("[msg]"))
 	if(nut || aff)
@@ -314,7 +308,7 @@
 		if(!our_maps.len)
 			to_chat(src, span_warning("There is nowhere nearby to go to! You need to get closer to somewhere you can transition to before you can transition."))
 			return
-		for(var/obj/effect/landmark/l in landmarks_list)
+		for(var/obj/effect/landmark/l in GLOB.landmarks_list)
 			if(l.z in our_maps)
 				if(istype(l,/obj/effect/landmark/stardog))
 					destinations |= l
@@ -328,7 +322,7 @@
 			to_chat(src, span_warning("You decide not to transition."))
 			return
 		to_chat(src, span_notice("You begin to transition down to \the [our_dest], stay still..."))
-		if(!do_after(src, 15 SECONDS, exclusive = TRUE))
+		if(!do_after(src, 15 SECONDS, target = src))
 			to_chat(src, span_warning("You were interrupted."))
 			return
 		visible_message(span_warning("\The [src] disappears!!!"))
@@ -339,7 +333,7 @@
 
 	else
 		to_chat(src, span_notice("You begin to transition back to space, stay still..."))
-		if(!do_after(src, 15 SECONDS, exclusive = TRUE))
+		if(!do_after(src, 15 SECONDS, target = src))
 			to_chat(src, span_warning("You were interrupted."))
 			return
 
@@ -377,7 +371,6 @@
 	edge_blending_priority = 4
 	initial_flooring = /decl/flooring/fur
 	can_dig = FALSE
-	//turf_layers = list() CHOMP Removal
 	var/tree_chance = 25
 	var/tree_color = null
 	var/tree_type = /obj/structure/flora/tree/fur
@@ -476,7 +469,7 @@
 		to_chat(L, span_warning("You cannot speak in IC (muted)."))
 		return
 	if (!message)
-		message = tgui_input_text(usr, "Type a message to emote.","Emote Beyond")
+		message = tgui_input_text(usr, "Type a message to emote.","Emote Beyond", encode = FALSE)
 	message = sanitize_or_reflect(message,L)
 	if (!message)
 		return
@@ -488,7 +481,7 @@
 
 	var/mob/living/simple_mob/vore/overmap/stardog/m = s.parent
 
-	log_subtle(message,L)
+	L.log_message("(SUBTLE) [message]", LOG_EMOTE)
 	message = span_emote_subtle(span_bold("[L]") + " " + span_italics("[message]"))
 	message = span_bold("(From the back of \the [m]) ") + message
 	message = encode_html_emphasis(message)
@@ -501,7 +494,7 @@
 		if(isnewplayer(M))
 			continue
 		if(isobserver(M) && (!M.client?.prefs?.read_preference(/datum/preference/toggle/ghost_see_whisubtle) || \
-		!L.client?.prefs?.read_preference(/datum/preference/toggle/whisubtle_vis) && !M.client?.holder))
+		!L.client?.prefs?.read_preference(/datum/preference/toggle/whisubtle_vis) && !check_rights_for(M.client, R_HOLDER)))
 			spawn(0)
 				M.show_message(undisplayed_message, 2)
 		else
@@ -518,13 +511,6 @@
 	has_base_range = 15
 
 	can_paint = TRUE
-
-	footstep_sounds = list("human" = list(
-		'sound/effects/footstep/carpet1.ogg',
-		'sound/effects/footstep/carpet2.ogg',
-		'sound/effects/footstep/carpet3.ogg',
-		'sound/effects/footstep/carpet4.ogg',
-		'sound/effects/footstep/carpet5.ogg'))
 
 /obj/structure/flora/tree/fur
 	name = "tall fur"
@@ -711,7 +697,7 @@
 	if(!spawnstuff)
 		return
 	if(!valid_flora.len)
-		to_world_log("[src] does not have a set valid flora list!")
+		log_mapping("[src] does not have a set valid flora list!")
 		return TRUE
 
 	var/obj/F
@@ -727,7 +713,7 @@
 	if(!spawnstuff)
 		return
 	if(!valid_mobs.len)
-		to_world_log("[src] does not have a set valid mobs list!")
+		log_mapping("[src] does not have a set valid mobs list!")
 		return TRUE
 
 	var/mob/M
@@ -754,7 +740,7 @@
 	if(!spawnstuff)
 		return
 	if(!valid_mobs.len)
-		to_world_log("[src] does not have a set valid mobs list!")
+		log_mapping("[src] does not have a set valid mobs list!")
 		return
 
 	if(!prob(mob_chance))
@@ -773,7 +759,7 @@
 	if(!spawnstuff)
 		return
 	if(!valid_flora.len)
-		to_world_log("[src] does not have a set valid flora list!")
+		log_mapping("[src] does not have a set valid flora list!")
 		return
 
 	var/obj/F
@@ -791,7 +777,7 @@
 	if(treasure_chance <= 0)
 		return
 	if(!valid_treasure.len)
-		to_world_log("[src] does not have a set valid treasure list!")
+		log_mapping("[src] does not have a set valid treasure list!")
 		return
 
 	var/obj/F
@@ -1063,7 +1049,7 @@
 		to_chat(user, span_warning("You can see \the [controller] inside! Tendrils of nerves seem to have attached themselves to \the [controller]! There's no room for you right now!"))
 		return
 	user.visible_message(span_notice("\The [user] reaches out to touch \the [src]..."),span_notice("You reach out to touch \the [src]..."))
-	if(!do_after(user, 10 SECONDS, src, exclusive = TRUE))
+	if(!do_after(user, 10 SECONDS, target = src))
 		user.visible_message(span_warning("\The [user] pulls back from \the [src]."),span_warning("You pull back from \the [src]."))
 		return
 	if(controller)	//got busy while you were waiting, get rekt
@@ -1109,15 +1095,15 @@
 
 /obj/effect/landmark/area_gatherer
 	name = "stardog area gatherer"
+
 /obj/effect/landmark/area_gatherer/Initialize(mapload)
 	. = ..()
-	LateInitialize()
+	return INITIALIZE_HINT_LATELOAD
 
 /obj/effect/landmark/area_gatherer/LateInitialize()	//I am very afraid
 	var/obj/effect/overmap/visitable/ship/simplemob/stardog/s = get_overmap_sector(z)
 	var/mob/living/simple_mob/vore/overmap/stardog/dog = s.parent
 	dog.weather_areas |= get_area(src)
-	for(var/thing in dog.weather_areas)
 	qdel(src)
 
 /obj/machinery/computer/ship/navigation/telescreen/dog_eye
@@ -1149,7 +1135,7 @@
 		to_chat(L, span_warning("You cannot speak in IC (muted)."))
 		return
 	if (!message)
-		message = tgui_input_text(L, "Type a message to emote.","Emote Beyond")
+		message = tgui_input_text(L, "Type a message to emote.","Emote Beyond", encode = FALSE)
 	message = sanitize_or_reflect(message,L)
 	if (!message)
 		return
@@ -1160,7 +1146,7 @@
 		to_chat(L, span_warning("You can't do that here."))
 		return
 
-	log_subtle(message,L)
+	L.log_message("(SUBTLE) [message]", LOG_EMOTE)
 	message = span_emote_subtle(span_bold("[L]") + " " + span_italics("[message]"))
 	message = span_bold("(From within \the [s]) ") + message
 	message = encode_html_emphasis(message)
@@ -1173,7 +1159,7 @@
 		if(isnewplayer(M))
 			continue
 		if(isobserver(M) && (!M.client?.prefs?.read_preference(/datum/preference/toggle/ghost_see_whisubtle) || \
-		!L.client?.prefs?.read_preference(/datum/preference/toggle/whisubtle_vis) && !M.client?.holder))
+		!L.client?.prefs?.read_preference(/datum/preference/toggle/whisubtle_vis) && !check_rights_for(M.client, R_HOLDER)))
 			spawn(0)
 				M.show_message(undisplayed_message, 2)
 		else
@@ -1257,7 +1243,7 @@
 	desc = "It's waiting to accept treats!"
 	icon = 'icons/obj/flesh_machines.dmi'
 	icon_state = "mouth"
-	invisibility = 0
+	invisibility = INVISIBILITY_NONE
 	anchored = TRUE
 	pixel_x = -16
 	var/id = "mouth_a"							//same id will be linked
@@ -1319,6 +1305,7 @@
 			return
 		L.stop_pulling()
 		L.Weaken(3)
+		L.reset_perspective() // Needed for food items that get gobbled with micros in them
 		GLOB.prey_eaten_roundstat++
 	if(target.reciever)		//We don't have to worry
 		AM.unbuckle_all_mobs(TRUE)
@@ -1436,6 +1423,7 @@
 	water_icon = 'icons/turf/stomach_vr.dmi'
 	water_state = "enzyme_shallow"
 	under_state = "flesh_floor"
+	watercolor = "green"
 
 	reagent_type = REAGENT_ID_SACID //why not
 	outdoors = FALSE
@@ -1443,13 +1431,13 @@
 	var/mobstuff = TRUE		//if false, we don't care about dogs, and that's terrible
 	var/we_process = FALSE	//don't start another process while you're processing, idiot
 
-/turf/simulated/floor/water/digestive_enzymes/Entered(atom/movable/AM)
-	if(digest_stuff(AM) && !we_process)
+/turf/simulated/floor/water/digestive_enzymes/Entered(atom/movable/source)
+	if(digest_stuff(source) && !we_process)
 		START_PROCESSING(SSturfs, src)
 		we_process = TRUE
 
-/turf/simulated/floor/water/digestive_enzymes/hitby(atom/movable/AM)
-	if(digest_stuff(AM) && !we_process)
+/turf/simulated/floor/water/digestive_enzymes/hitby(atom/movable/source)
+	if(digest_stuff(source) && !we_process)
 		START_PROCESSING(SSturfs, src)
 		we_process = TRUE
 
@@ -1458,12 +1446,12 @@
 		we_process = FALSE
 		return PROCESS_KILL
 
-/turf/simulated/floor/water/digestive_enzymes/proc/can_digest(atom/movable/AM as mob|obj)
+/turf/simulated/floor/water/digestive_enzymes/proc/can_digest(atom/movable/digest_target)
 	. = FALSE
-	if(AM.loc != src)
+	if(digest_target.loc != src)
 		return FALSE
-	if(isitem(AM))
-		var/obj/item/I = AM
+	if(isitem(digest_target))
+		var/obj/item/I = digest_target
 		if(I.unacidable || I.throwing || I.is_incorporeal())
 			return FALSE
 		var/food = FALSE
@@ -1480,8 +1468,8 @@
 				yum += 50
 			linked_mob.adjust_nutrition(yum)
 		return TRUE
-	if(isliving(AM))
-		var/mob/living/L = AM
+	if(isliving(digest_target))
+		var/mob/living/L = digest_target
 		if(L.unacidable || !L.digestable || L.buckled || L.hovering || L.throwing || L.is_incorporeal())
 			return FALSE
 		if(ishuman(L))
@@ -1492,7 +1480,7 @@
 				return TRUE
 		else return TRUE
 
-/turf/simulated/floor/water/digestive_enzymes/proc/digest_stuff(atom/movable/AM)	//I'm so sorry
+/turf/simulated/floor/water/digestive_enzymes/proc/digest_stuff(atom/movable/digest_target)	//I'm so sorry
 	. = FALSE
 
 	var/damage = 1
@@ -1533,16 +1521,14 @@
 				linked_mob.adjust_nutrition(how_much)
 				H.mind?.vore_death = TRUE
 				GLOB.prey_digested_roundstat++
-			spawn(0)
 			qdel(H)	//glorp
 			return
+		H.burn_skin(damage)
 		if(linked_mob)
-			H.burn_skin(damage)
-			if(linked_mob)
-				var/how_much = (damage * H.size_multiplier) * H.get_digestion_nutrition_modifier() * linked_mob.get_digestion_efficiency_modifier()
-				if(!H.ckey)
-					how_much = how_much / 10	//Braindead mobs are worth less
-				linked_mob.adjust_nutrition(how_much)
+			var/how_much = (damage * H.size_multiplier) * H.get_digestion_nutrition_modifier() * linked_mob.get_digestion_efficiency_modifier()
+			if(!H.ckey)
+				how_much = how_much / 10	//Braindead mobs are worth less
+			linked_mob.adjust_nutrition(how_much)
 	else if (isliving(thing))
 		var/mob/living/L = thing
 		if(!L)
@@ -1580,7 +1566,7 @@
 	if(!we_process)
 		START_PROCESSING(SSturfs, src)
 
-/turf/simulated/floor/flesh/mover/hitby(atom/movable/AM)
+/turf/simulated/floor/flesh/mover/hitby(atom/movable/source)
 	if(!we_process)
 		START_PROCESSING(SSturfs, src)
 

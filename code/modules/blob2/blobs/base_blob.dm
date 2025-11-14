@@ -26,7 +26,7 @@ GLOBAL_LIST_EMPTY(all_blobs)
 	update_icon()
 	if(!integrity)
 		integrity = max_integrity
-	set_dir(pick(cardinal))
+	set_dir(pick(GLOB.cardinal))
 	GLOB.all_blobs += src
 	consume_tile()
 	return ..()
@@ -81,7 +81,7 @@ GLOBAL_LIST_EMPTY(all_blobs)
 		return overmind.blob_type.effect_desc
 	return ..()
 
-/obj/structure/blob/emp_act(severity)
+/obj/structure/blob/emp_act(severity, recursive)
 	if(overmind)
 		overmind.blob_type.on_emp(src, severity)
 
@@ -142,7 +142,7 @@ GLOBAL_LIST_EMPTY(all_blobs)
 
 /obj/structure/blob/proc/expand(turf/T = null, controller = null, expand_reaction = 1)
 	if(!T)
-		var/list/dirs = cardinal.Copy()
+		var/list/dirs = GLOB.cardinal.Copy()
 		for(var/i = 1 to 4)
 			var/dirn = pick(dirs)
 			dirs.Remove(dirn)

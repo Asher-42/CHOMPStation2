@@ -116,13 +116,23 @@
 	sprite_icon_state = "uptall2"
 
 // Wide/dogborg sprites
-/*
+
 /datum/robot_sprite/dogborg/standard
 	module_type = "Standard"
-	sprite_icon = 'icons/mob/robot/standard_wide.dmi'
+/*	sprite_icon = 'icons/mob/robot/standard_wide.dmi'
 
 		// None yet
 */
+
+/datum/robot_sprite/dogborg/standard/smolraptor
+	sprite_icon = 'icons/mob/robot/smallraptors/smolraptor_gen.dmi'
+	name = "Small Raptor"
+	sprite_icon_state = "smolraptor"
+	has_eye_light_sprites = TRUE
+	has_vore_belly_sprites = TRUE
+	has_dead_sprite_overlay = FALSE
+	rest_sprite_options = list("Default", "Sit", "Bellyup")
+
 // Tall sprites
 /*
 /datum/robot_sprite/dogborg/tall/standard
@@ -135,6 +145,21 @@
 /datum/robot_sprite/dogborg/tall/standard
 	module_type = "Standard"
 	//sprite_icon = 'icons/mob/robot/standard_large.dmi' NOT USED YET
+
+/datum/robot_sprite/dogborg/tall/standard/dullataurstandard
+	name = "Dullataur"
+	sprite_icon_state = "dullataurstandard"
+	sprite_icon = 'icons/mob/robot/dullahan/dullataurs/dullataur.dmi'
+	rest_sprite_options = list("Default")
+	has_eye_light_sprites = TRUE
+	has_rest_sprites = TRUE
+	has_vore_belly_sprites = FALSE
+	has_vore_belly_resting_sprites = FALSE
+	has_rest_lights_sprites = TRUE
+	has_rest_eyes_sprites = TRUE
+	sprite_decals = list("breastplate")
+	icon_x = 64
+	pixel_x = -16
 
 /datum/robot_sprite/dogborg/tall/standard/dullahanv3/standarddully
 	name = "Dullahan standard v3"
@@ -152,12 +177,6 @@
 
 //INCOMPLETE and not ready, no sprites other than tall and basically useless, also lacking a belly
 
-//Add ourselves to the borg list
-/hook/startup/proc/Modular_Borg_init_standardhound()
-	//robot_modules["Honk-Hound"] = /obj/item/robot_module/robot/clerical/honkborg - done in station_vr modular chomp for ordering reasons
-	robot_module_types += "Standard-Hound" //Add ourselves to global
-	return 1
-
 /obj/item/robot_module/robot/standard/hound
 	name = "Standard-Hound"
 	sprites = list(
@@ -169,7 +188,7 @@
 
 	can_be_pushed = 0
 
-/obj/item/robot_module/robot/standard/hound/New(var/mob/living/silicon/robot/R)
+/obj/item/robot_module/robot/standard/hound/create_equipment(mob/living/silicon/robot/robot)
 	..()
 	src.modules += new /obj/item/melee/baton/loaded(src)
 	src.modules += new /obj/item/tool/wrench/cyborg(src)
@@ -203,5 +222,4 @@
 	add_verb(R,/mob/living/proc/toggle_rider_reins)
 	add_verb(R,/mob/living/proc/shred_limb)
 	add_verb(R,/mob/living/silicon/robot/proc/rest_style)
-	..()
 */

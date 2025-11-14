@@ -27,7 +27,6 @@
 //Camera networks
 #define NETWORK_CRYOGAIA "Cryogaia"
 #define NETWORK_TCOMMS "Telecommunications" //Using different from Polaris one for better name
-#define NETWORK_OUTSIDE "Outside"
 #define NETWORK_EXPLORATION "Exploration"
 #define NETWORK_XENOBIO "Xenobiology"
 
@@ -44,8 +43,8 @@
 	overmap_event_areas = 10
 
 	usable_email_tlds = list("cryogaia.nt")
-	lobby_icon = 'icons/misc/title_yw.dmi'
-	lobby_screens = list("cryogaia")
+
+	lobby_screens = list('modular_chomp/html/lobby/cryogaia.webp')
 	id_hud_icons = 'icons/mob/hud_jobs_vr.dmi'
 
 	holomap_smoosh = list(list(

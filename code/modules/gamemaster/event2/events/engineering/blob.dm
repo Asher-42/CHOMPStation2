@@ -31,17 +31,17 @@
 
 /datum/event2/meta/blob/get_weight()
 	// Count the 'fighters'.
-	var/list/engineers = metric.get_people_in_department(DEPARTMENT_ENGINEERING)
-	var/list/security = metric.get_people_in_department(DEPARTMENT_SECURITY)
+	var/list/engineers = GLOB.metric.get_people_in_department(DEPARTMENT_ENGINEERING)
+	var/list/security = GLOB.metric.get_people_in_department(DEPARTMENT_SECURITY)
 
 	if(engineers.len + security.len < required_fighters)
 		return 0
 
 	// Now count the 'support'.
-	var/list/medical = metric.get_people_in_department(DEPARTMENT_MEDICAL)
+	var/list/medical = GLOB.metric.get_people_in_department(DEPARTMENT_MEDICAL)
 	var/need_medical = FALSE
 
-	var/list/robotics = metric.get_people_with_job(/datum/job/roboticist)
+	var/list/robotics = GLOB.metric.get_people_with_job(/datum/job/roboticist)
 	var/need_robotics = FALSE
 
 	// Determine what kind of support might be needed.
@@ -99,7 +99,7 @@
 	open_turfs = find_random_turfs(5 + number_of_blobs)
 
 	if(!open_turfs.len)
-		log_debug("Blob infestation event: Giving up after failure to find blob spots.")
+		log_game("Blob infestation event: Giving up after failure to find blob spots.")
 		abort()
 
 /datum/event2/event/blob/start()
@@ -108,7 +108,7 @@
 		var/obj/structure/blob/core/new_blob = new spawn_blob_type(T)
 		blobs += WEAKREF(new_blob)
 		open_turfs -= T // So we can't put two cores on the same tile if doing multiblob.
-		log_debug("Spawned [new_blob.overmind.blob_type.name] blob at [get_area(new_blob)].")
+		log_game("Spawned [new_blob.overmind.blob_type.name] blob at [get_area(new_blob)].")
 
 /datum/event2/event/blob/should_end()
 	for(var/datum/weakref/weakref as anything in blobs)

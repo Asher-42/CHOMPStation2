@@ -41,7 +41,7 @@ SUBSYSTEM_DEF(appreciation)
 			do_appreciate()
 			return
 
-		current_player_list = player_list.Copy()
+		current_player_list = GLOB.player_list.Copy()
 
 	while(current_player_list.len)
 		var/mob/M = current_player_list[current_player_list.len]
@@ -93,7 +93,7 @@ SUBSYSTEM_DEF(appreciation)
 
 /datum/controller/subsystem/appreciation/proc/msg(var/message,var/sender)
 	ASSERT(message)
-	global_announcer.autosay("[message]", sender ? sender : "Cultural Awareness")
+	GLOB.global_announcer.autosay("[message]", sender ? sender : "Cultural Awareness")
 
 /datum/controller/subsystem/appreciation/proc/is_squelched()
 	return squelched

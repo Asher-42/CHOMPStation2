@@ -17,15 +17,9 @@
 	desc = "This slick flesh ripples and squishes under your touch"
 	icon = 'icons/turf/stomach_vr.dmi'
 	icon_base = "flesh_floor"
-	footstep_sounds = list("human" = list(
-		'sound/effects/footstep/mud1.ogg',
-		'sound/effects/footstep/mud2.ogg',
-		'sound/effects/footstep/mud3.ogg',
-		'sound/effects/footstep/mud4.ogg'
-		))
 
 /decl/flooring/grass/outdoors
-	flags = 0
+	flags = NONE
 	build_type = null
 
 /decl/flooring/grass/outdoors/forest
@@ -80,12 +74,6 @@
 	plating_type = /decl/flooring/eris_plating/under
 	can_paint = 1
 	can_engrave = TRUE
-	footstep_sounds = list("human" = list(
-		'sound/effects/footstep/floor1.ogg',
-		'sound/effects/footstep/floor2.ogg',
-		'sound/effects/footstep/floor3.ogg',
-		'sound/effects/footstep/floor4.ogg',
-		'sound/effects/footstep/floor5.ogg'))
 
 /turf/simulated/floor/tiled/milspec
 	name = "milspec floor"

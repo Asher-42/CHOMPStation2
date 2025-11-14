@@ -66,7 +66,7 @@
 	recipes += new/datum/stack_recipe("smole museum", /obj/structure/smolebuilding/museum, 2, time = 10)
 
 /datum/material/smolebricks
-	name = "smolebricks"
+	name = MAT_SMOLEBRICKS
 	stack_type = /obj/item/stack/material/smolebricks
 	icon_base = "solid"
 	icon_reinf = "reinf_over"
@@ -77,13 +77,13 @@
 //the actual materials
 
 /obj/item/stack/material/smolebricks
-	name = "smolebricks"
+	name = MAT_SMOLEBRICKS
 	desc = "A collection of tiny colored bricks ready to be built into whatever you want."
 	icon = 'icons/vore/smoleworld_vr.dmi'
 	icon_state = "smolematerial"
 	drop_sound = 'sound/items/drop/smolematerial.ogg'
 	pickup_sound = 'sound/items/pickup/pillbottle.ogg'
-	default_type = "smolebricks"
+	default_type = MAT_SMOLEBRICKS
 	w_class = ITEMSIZE_SMALL
 
 //smolebrick case to make for easy bricks.
@@ -113,6 +113,10 @@
 	color = "#ffffff"
 	density = FALSE
 
+/obj/structure/smoletrack/Initialize(mapload)
+	. = ..()
+	AddElement(/datum/element/rotatable)
+
 /obj/structure/smoletrack/attack_hand(mob/user)
 	if(user.a_intent == I_DISARM)
 		if(ismouse(user) || (isobserver(user) && !CONFIG_GET(flag/ghost_interaction)))
@@ -124,22 +128,8 @@
 			new /obj/item/stack/material/smolebricks(F)
 		qdel(src)
 
-//rotates piece
-/obj/structure/smoletrack/verb/rotate_clockwise()
-	set name = "Rotate Road Clockwise"
-	set category = "Object"
-	set src in oview(1)
-	if(ismouse(usr) || (isobserver(usr) && !CONFIG_GET(flag/ghost_interaction)))
-		return
-	src.set_dir(turn(src.dir, 270))
-
-/obj/structure/smoletrack/verb/rotate_counterclockwise()
-	set name = "Rotate Road Counter-Clockwise"
-	set category = "Object"
-	set src in oview(1)
-	if(ismouse(usr) || (isobserver(usr) && !CONFIG_GET(flag/ghost_interaction)))
-		return
-	src.set_dir(turn(src.dir, 90))
+/obj/structure/smoletrack/ghosts_can_use_rotate_verbs()
+	return CONFIG_GET(flag/ghost_interaction)
 
 //color roads
 /obj/structure/smoletrack/verb/colorpieces()

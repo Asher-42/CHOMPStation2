@@ -7,8 +7,8 @@
 	name = "Inactive AI Eye"
 	icon_state = "AI-eye"
 
-/mob/observer/eye/aiEye/New()
-	..()
+/mob/observer/eye/aiEye/Initialize(mapload)
+	. = ..()
 	visualnet = cameranet
 
 /mob/observer/eye/aiEye/Destroy()
@@ -33,7 +33,7 @@
 			ai.camera_visibility(src)
 
 		if(ai.client && !ai.multicam_on)
-			ai.client.eye = src
+			ai.reset_perspective(src)
 
 		if(ai.master_multicam)
 			ai.master_multicam.refresh_view()
@@ -57,8 +57,7 @@
 		new_eye = src
 	qdel(eyeobj) // No AI, no Eye
 	eyeobj = null
-	if(client)
-		client.eye = new_eye
+	reset_perspective(new_eye)
 
 /mob/living/silicon/ai/proc/create_eyeobj(var/newloc)
 	if(eyeobj)
@@ -69,20 +68,8 @@
 	all_eyes += eyeobj
 	eyeobj.owner = src
 	eyeobj.name = "[src.name] (AI Eye)" // Give it a name
-	if(client)
-		client.eye = eyeobj
+	reset_perspective(eyeobj)
 	SetName(src.name)
-
-// Intiliaze the eye by assigning it's "ai" variable to us. Then set it's loc to us.
-/mob/living/silicon/ai/Initialize(mapload)
-	. = ..()
-	create_eyeobj()
-	if(eyeobj)
-		eyeobj.loc = src.loc
-
-/mob/living/silicon/ai/Destroy()
-	destroy_eyeobj()
-	return ..()
 
 /atom/proc/move_camera_by_click()
 	if(isAI(usr))
@@ -98,9 +85,9 @@
 
 	if(!src.eyeobj)
 		return
-
 	if(client && client.eye)
-		client.eye = src
+		reset_perspective(src)
+
 	for(var/datum/chunk/c in eyeobj.visibleChunks)
 		c.remove(eyeobj)
 	src.eyeobj.setLoc(src)

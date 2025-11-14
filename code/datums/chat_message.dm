@@ -13,7 +13,6 @@
 
 #define CHAT_MESSAGE_MOB			1
 #define CHAT_MESSAGE_OBJ			2
-#define WXH_TO_HEIGHT(x)			text2num(copytext((x), findtextEx((x), "x") + 1)) // thanks lummox
 
 #define CHAT_RUNE_EMOTE				0x1
 #define CHAT_RUNE_RADIO				0x2
@@ -81,7 +80,7 @@ var/list/runechat_image_cache = list()
 
 /datum/chatmessage/Destroy()
 	if(istype(owned_by, /client)) // hopefully the PARENT_QDELETING on client should beat this if it's a disconnect
-		UnregisterSignal(owned_by, COMSIG_PARENT_QDELETING)
+		UnregisterSignal(owned_by, COMSIG_QDELETING)
 		if(owned_by.seen_messages)
 			LAZYREMOVEASSOC(owned_by.seen_messages, message_loc, src)
 		owned_by.images.Remove(message)
@@ -113,7 +112,7 @@ var/list/runechat_image_cache = list()
 
 	// Register client who owns this message
 	owned_by = owner.client
-	RegisterSignal(owned_by, COMSIG_PARENT_QDELETING, PROC_REF(unregister_qdel_self)) // this should only call owned_by if the client is destroyed
+	RegisterSignal(owned_by, COMSIG_QDELETING, PROC_REF(unregister_qdel_self)) // this should only call owned_by if the client is destroyed
 
 	var/extra_length = owned_by.prefs?.read_preference(/datum/preference/toggle/runechat_long_messages)
 	var/maxlen = extra_length ? CHAT_MESSAGE_EXT_LENGTH : CHAT_MESSAGE_LENGTH
@@ -182,7 +181,8 @@ var/list/runechat_image_cache = list()
 	var/complete_text = "<span class='center maptext [extra_classes != null ? extra_classes.Join(" ") : ""]' style='color: [tgt_color];'>[text]</span>"
 
 	var/msgwidth = extra_length ? CHAT_MESSAGE_EXT_WIDTH : CHAT_MESSAGE_WIDTH
-	var/mheight = WXH_TO_HEIGHT(owned_by.MeasureText(complete_text, null, msgwidth))
+	var/mheight
+	WXH_TO_HEIGHT(owned_by.MeasureText(complete_text, null, msgwidth), mheight)
 
 	if(!VERB_SHOULD_YIELD)
 		return finish_image_generation(msgwidth, mheight, target, owner, complete_text, lifespan)
@@ -199,8 +199,11 @@ var/list/runechat_image_cache = list()
 
 	// Translate any existing messages upwards, apply exponential decay factors to timers
 	message_loc = target.runechat_holder(src)
-	RegisterSignal(message_loc, COMSIG_PARENT_QDELETING, PROC_REF(qdel_self))
-	if(owned_by && owned_by.seen_messages)
+	if(!owned_by)
+		qdel(src)
+		return
+	RegisterSignal(message_loc, COMSIG_QDELETING, PROC_REF(qdel_self))
+	if(owned_by.seen_messages)
 		var/idx = 1
 		var/combined_height = approx_lines
 		for(var/datum/chatmessage/m as anything in owned_by.seen_messages[message_loc])
@@ -291,7 +294,7 @@ var/list/runechat_image_cache = list()
 
 /datum/chatmessage/proc/unregister_qdel_self()  // this should only call owned_by if the client is destroyed
 	SIGNAL_HANDLER
-	UnregisterSignal(owned_by, COMSIG_PARENT_QDELETING)
+	UnregisterSignal(owned_by, COMSIG_QDELETING)
 	owned_by = null
 	qdel_self()
 
@@ -452,7 +455,7 @@ var/list/runechat_image_cache = list()
 	return (width - bound_width) * -0.5 + get_oversized_icon_offsets()["x"]
 
 /atom/movable/runechat_y_offset()
-	return ..() + get_oversized_icon_offsets()["y"]
+	return ..() + get_oversized_icon_offsets()["y"] * 1.5 // Fix to use 2 if we ever can measure sprites
 
 /* Nothing special
 /mob/runechat_x_offset(width, height)
@@ -486,7 +489,6 @@ var/list/runechat_image_cache = list()
 
 #undef CHAT_MESSAGE_MOB
 #undef CHAT_MESSAGE_OBJ
-#undef WXH_TO_HEIGHT
 
 #undef CHAT_RUNE_EMOTE
 #undef CHAT_RUNE_RADIO

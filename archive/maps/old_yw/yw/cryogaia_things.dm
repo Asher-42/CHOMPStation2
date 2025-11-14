@@ -56,7 +56,7 @@
 
 // Invisible object that blocks z transfer to/from its turf and the turf above.
 /obj/effect/ceiling
-	invisibility = 101 // nope cant see this
+	invisibility = INVISIBILITY_ABSTRACT // nope cant see this
 	anchored = 1
 
 /obj/effect/ceiling/CheckExit(atom/movable/O as mob|obj, turf/target as turf)
@@ -204,10 +204,10 @@ var/global/list/latejoin_tram   = list()
 	name = "JoinLateTram"
 	delete_me = 1
 
-/obj/effect/landmark/tram/New()
+/obj/effect/landmark/tram/Initialize(mapload)
 	latejoin_tram += loc // Register this turf as tram latejoin.
 	latejoin += loc // Also register this turf as fallback latejoin, since we won't have any arrivals shuttle landmarks.
-	..()
+	. = ..()
 
 /datum/spawnpoint/tram
 	display_name = "Tram Station"
@@ -321,8 +321,8 @@ var/global/list/latejoin_tram   = list()
 	desc = "Neutralizes toxins and provides a mild analgesic effect."
 	icon_state = "pill2"
 
-/obj/item/reagent_containers/pill/airlock/New()
-	..()
+/obj/item/reagent_containers/pill/airlock/Initialize(mapload)
+	. = ..()
 	reagents.add_reagent(REAGENT_ID_ANTITOXIN, 15)
 	reagents.add_reagent(REAGENT_ID_PARACETAMOL, 5)
 
@@ -356,7 +356,7 @@ var/global/list/latejoin_tram   = list()
 	var/deiceTools[0]
 	var/nextWeatherCheck
 
-/obj/machinery/door/airlock/glass_external/freezable/New()
+/obj/machinery/door/airlock/glass_external/freezable/Initialize(mapload)
 	//Associate objects with the number of seconds it would take to de-ice a door.
 	//Most items are either more or less effecient at it.
 	//For items with very specific cases (like welders using fuel, or needing to be on) see attackby().
@@ -369,7 +369,7 @@ var/global/list/latejoin_tram   = list()
 	//This is for preventing "Sierra" syndrome that could result from needing very specific objects.
 	deiceTools[/obj/item/tool] = 10
 	deiceTools[/obj/item] = 12
-	..()
+	. = ..()
 
 /obj/machinery/door/airlock/glass_external/freezable/attackby(obj/item/I, mob/user as mob)
 	//Special cases for tools that need more then just a type check.
@@ -386,7 +386,7 @@ var/global/list/latejoin_tram   = list()
 			if(welder.remove_fuel(0,user) && welder && welder.isOn())
 				to_chat(user, span_notice("You start to melt the ice off \the [src]"))
 				playsound(src, welder.usesound, 50, 1)
-				if(do_after(user, welderTime SECONDS))
+				if(do_after(user, welderTime SECONDS, src))
 					to_chat(user, span_notice("You finish melting the ice off \the [src]"))
 					unFreeze()
 					return
@@ -410,7 +410,7 @@ var/global/list/latejoin_tram   = list()
 
 /obj/machinery/door/airlock/glass_external/freezable/proc/handleRemoveIce(obj/item/W as obj, mob/user as mob, var/time = 15 as num)
 	to_chat(user, span_notice("You start to chip at the ice covering \the [src]"))
-	if(do_after(user, text2num(time SECONDS)))
+	if(do_after(user, text2num(time SECONDS), src))
 		unFreeze()
 		to_chat(user, span_notice("You finish chipping the ice off \the [src]"))
 
@@ -479,8 +479,8 @@ var/global/list/latejoin_tram   = list()
 	name = "expedition weaponry cabinet"
 	req_one_access = list(access_explorer,access_brig)
 
-/obj/structure/closet/secure_closet/guncabinet/excursion/New()
-	..()
+/obj/structure/closet/secure_closet/guncabinet/excursion/Initialize(mapload)
+	. = ..()
 	for(var/i = 1 to 4)
 		new /obj/item/gun/energy/locked/frontier(src)
 	for(var/i = 1 to 4)
@@ -683,14 +683,14 @@ obj/machinery/trailblazer/Initialize(mapload)
 	req_access = null
 	req_one_access = list(access_pilot,access_explorer)
 
-/obj/effect/step_trigger/teleporter/from_plains/New()
-	..()
+/obj/effect/step_trigger/teleporter/from_plains/Initialize(mapload)
+	. = ..()
 	teleport_x = world.maxx - 1
 	teleport_y = src.y
 	teleport_z = Z_LEVEL_CRYOGAIA_MAIN
 
-/obj/effect/step_trigger/teleporter/to_plains/New()
-	..()
+/obj/effect/step_trigger/teleporter/to_plains/Initialize(mapload)
+	. = ..()
 	teleport_x = 2
 	teleport_y = src.y
 	teleport_z = Z_LEVEL_PLAINS

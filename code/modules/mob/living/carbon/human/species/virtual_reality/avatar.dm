@@ -41,7 +41,7 @@
 		/mob/living/proc/set_size,
 		/mob/living/carbon/human/proc/regenerate,
 		/mob/living/carbon/human/proc/promethean_select_opaqueness,
-		/mob/living/carbon/human/proc/exit_vr
+		/mob/living/carbon/human/proc/perform_exit_vr
 		)
 
 
@@ -49,6 +49,7 @@
 	return
 
 /datum/species/shapeshifter/promethean/avatar/handle_environment_special(var/mob/living/carbon/human/H)
+	//Traits like anxiety won't apply here, but that's the issue with them being a subtype of Promethean.
 	return
 
 /mob/living/carbon/human/proc/shapeshifter_change_opacity()
@@ -85,9 +86,12 @@
 	to_chat(avatar, span_notice(" You black out for a moment, and wake to find yourself in a new body in virtual reality.")) // So this is what VR feels like?
 
 // exit_vr is called on the vr mob, and puts the mind back into the original mob
-/mob/living/carbon/human/proc/exit_vr()
+/mob/living/carbon/human/proc/perform_exit_vr()
 	set name = "Exit Virtual Reality"
 	set category = "Abilities.VR"
+	exit_vr(TRUE)
+
+/mob/living/carbon/human/proc/exit_vr(player_initated)
 
 	if(!vr_holder)
 		return
@@ -113,16 +117,16 @@
 	// Getting hurt in VR doesn't damage the physical body, but you still got hurt.
 	if(ishuman(vr_holder) && total_damage)
 		var/mob/living/carbon/human/V = vr_holder
-		V.stun_effect_act(0, total_damage*2/3, null)												// 200 damage leaves the user in paincrit for several seconds, agony reaches 0 after around 2m.
+		V.stun_effect_act(0, total_damage*2/3, null, electric = FALSE)												// 200 damage leaves the user in paincrit for several seconds, agony reaches 0 after around 2m.
 		to_chat(vr_holder, span_warning("Pain from your time in VR lingers."))		// 250 damage leaves the user unconscious for several seconds in addition to paincrit
 
 	// Maintain a link with the mob, but don't use teleop
 	vr_holder.vr_link = src
 	vr_holder.teleop = null
 
-	if(istype(vr_holder.loc, /obj/machinery/vr_sleeper))
+	if(player_initated && istype(vr_holder.loc, /obj/machinery/vr_sleeper))
 		var/obj/machinery/vr_sleeper/V = vr_holder.loc
-		V.go_out(TRUE)
+		V.perform_exit()
 
 	if(died_in_vr)
 		addtimer(CALLBACK(src, PROC_REF(cleanup_vr)), 3000, TIMER_DELETE_ME) //Delete the body after 5 minutes

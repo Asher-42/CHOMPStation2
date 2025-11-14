@@ -1,23 +1,8 @@
-//checks if a file exists and contains text
-//returns text as a string if these conditions are met
-/proc/return_file_text(filename)
-	if(fexists(filename) == 0)
-		error("File not found ([filename])")
-		return
-
-	var/text = file2text(filename)
-	if(!text)
-		error("File empty ([filename])")
-		return
-
-	return text
-
 /**
  * For FTP requests. (i.e. downloading runtime logs.)
  *
  * However it'd be ok to use for accessing attack logs and such too, which are even laggier.
  */
-GLOBAL_VAR_INIT(fileaccess_timer, 0)
 
 /client/proc/browse_files(root_type=BROWSE_ROOT_ALL_LOGS, max_iterations=10, list/valid_extensions=list("txt","log","htm", "html", "gz", "json"))
 	// wow why was this ever a parameter
@@ -26,7 +11,7 @@ GLOBAL_VAR_INIT(fileaccess_timer, 0)
 		if(BROWSE_ROOT_ALL_LOGS)
 			root = "data/logs/"
 		if(BROWSE_ROOT_CURRENT_LOGS)
-			root = log_path
+			root = GLOB.log_directory
 	var/path = root
 
 	for(var/i in 1 to max_iterations)

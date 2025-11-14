@@ -53,15 +53,6 @@
 				"bio" = 100,
 				"rad" = 100
 				)
-	armor_soak = list(		// Values for getsoak() checks.
-				"melee" = 0,
-				"bullet" = 0,
-				"laser" = 0,
-				"energy" = 0,
-				"bomb" = 0,
-				"bio" = 0,
-				"rad" = 0
-				)
 	var/exploded = FALSE
 	var/explosion_dev_range		= 0
 	var/explosion_heavy_range	= 0
@@ -548,7 +539,7 @@
 	pixel_x = -16
 	pixel_y = 0
 
-	movement_sound = 'modular_chomp/sound/effects/carrev.ogg'
+	movement_sound = 'sound/effects/carrev.ogg'
 
 	min_oxy = 0
 	max_oxy = 0
@@ -732,21 +723,12 @@ GLOBAL_LIST_INIT(obelisk_lure_messages, list(
 
 	armor = list(
 				"melee" = 100,
-				"bullet" = 70,
-				"laser" = 70,
-				"energy" = 90,
+				"bullet" = 80,
+				"laser" = 80,
+				"energy" = 97,
 				"bomb" = 0,
 				"bio" = 100,
 				"rad" = 100)
-	armor_soak = list(
-				"melee" = 15,
-				"bullet" = 5,
-				"laser" = 5,
-				"energy" = 5,
-				"bomb" = 0,
-				"bio" = 100,
-				"rad" = 100
-				)
 	var/datum/looping_sound/obelisk/loopy = 1
 
 /mob/living/simple_mob/vore/blackhole_obelisk/monolith
@@ -803,7 +785,7 @@ GLOBAL_LIST_INIT(obelisk_lure_messages, list(
 				return
 
 /datum/looping_sound/obelisk ///thanks to BM for helpin' me make this work <3
-	mid_sounds = 'modular_chomp/sound/effects/monolith_ambience.ogg'
+	mid_sounds = 'sound/effects/monolith_ambience.ogg'
 	mid_length = 50
 	chance = 100
 	volume = 35
@@ -843,7 +825,7 @@ GLOBAL_LIST_INIT(obelisk_lure_messages, list(
 /mob/living/simple_mob/vore/blackhole_obelisk/death()
 	..()
 	visible_message("[src] flashes brightly, crumbling as its psychic influence suddenly vanishes from the minds of those nearby...")
-	playsound(src, 'modular_chomp/sound/effects/monolith_death.ogg', 100)
+	playsound(src, 'sound/effects/monolith_death.ogg', 100)
 
 #undef OBELISK_LURE
 

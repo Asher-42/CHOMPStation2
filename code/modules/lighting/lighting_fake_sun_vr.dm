@@ -124,7 +124,6 @@ var/static/list/fake_sunlight_zs = list()
 	return INITIALIZE_HINT_LATELOAD
 
 /obj/effect/fake_sun/LateInitialize()
-	. = ..()
 	if(family)	//Allows one to make multiple fake_suns to use the same settings
 		for(var/obj/effect/fake_sun/l in world_suns)	//check all the suns that exist
 			if(l.family == family && l.shared_settings)	//do you have settings we need?
@@ -153,7 +152,7 @@ var/static/list/fake_sunlight_zs = list()
 			turfs_to_use += T
 
 	if(!turfs_to_use.len)
-		warning("Fake sun placed on a level where it can't find any outdoor turfs to color at [x],[y],[z].")
+		WARNING("Fake sun placed on a level where it can't find any outdoor turfs to color at [x],[y],[z].")
 		return
 
 	sun = new(null)
@@ -239,5 +238,12 @@ var/static/list/fake_sunlight_zs = list()
 		list(
 			"brightness" = 1,
 			"color" = "#1c49ff"
+		)
+	)
+/obj/effect/fake_sun/underwater/lighter
+	possible_light_setups = list(
+		list(
+			"brightness" = 1,
+			"color" = "#4bd1f3"
 		)
 	)

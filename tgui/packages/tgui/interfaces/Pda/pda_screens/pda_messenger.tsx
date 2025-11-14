@@ -1,21 +1,28 @@
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { useBackend } from 'tgui/backend';
-import { Box, Button, Image, LabeledList, Section } from 'tgui-core/components';
+import {
+  Box,
+  Button,
+  Image,
+  LabeledList,
+  Section,
+  Stack,
+} from 'tgui-core/components';
 import { fetchRetry } from 'tgui-core/http';
 import type { BooleanLike } from 'tgui-core/react';
 import { decodeHtmlEntities } from 'tgui-core/string';
 
 type Data = {
   active_conversation: string;
-  convo_name: string;
-  convo_job: string;
-  messages: message[];
+  convo_name?: string;
+  convo_job?: string;
+  messages?: message[];
   toff: BooleanLike;
   silent: BooleanLike;
-  convopdas: pda[];
-  pdas: pda[];
-  charges: number;
-  plugins: { name: string; icon: string; ref: string }[];
+  convopdas?: pda[];
+  pdas?: pda[];
+  charges?: number;
+  plugins?: { name: string; icon: string; ref: string }[];
   enable_message_embeds: BooleanLike;
 };
 
@@ -33,14 +40,6 @@ type message = {
   message: string;
   target: string;
 };
-
-// Really cursed old API that was deprecated before IE8 but still works in IE11 because lol lmao
-type IeWindow = Window &
-  typeof globalThis & {
-    clipboardData: {
-      setData: (type: 'Text', text: string) => {};
-    };
-  };
 
 const CopyToClipboardButton = (props: { messages: message[] }) => {
   const [showCompletion, setShowCompletion] = useState(false);
@@ -79,13 +78,7 @@ const copyToClipboard = (messages: message[]) => {
       string += `Them: ${message.message}\n`;
     }
   }
-
-  if (Byond.TRIDENT) {
-    const ie_window = window as IeWindow;
-    ie_window.clipboardData.setData('Text', string);
-  } else {
-    navigator.clipboard.writeText(string);
-  }
+  navigator.clipboard.writeText(string);
 };
 
 export const pda_messenger = (props) => {
@@ -102,7 +95,7 @@ export const pda_messenger = (props) => {
 const MessengerList = (props) => {
   const { act, data } = useBackend<Data>();
 
-  const { convopdas, pdas, charges, silent, toff } = data;
+  const { convopdas = [], pdas = [], charges, silent, toff } = data;
 
   return (
     <Box>
@@ -164,7 +157,7 @@ const PDAList = (props) => {
 
   const { pdas, title, msgAct } = props;
 
-  const { charges, plugins } = data;
+  const { charges, plugins = [] } = data;
 
   if (!pdas || !pdas.length) {
     return <Section title={title}>No PDAs found.</Section>;
@@ -203,35 +196,41 @@ const PDAList = (props) => {
 
 const ActiveConversation = (props) => {
   const { act, data } = useBackend<Data>();
-  const { convo_name, convo_job, messages, active_conversation } = data;
+  const { convo_name, convo_job, messages = [], active_conversation } = data;
   const [asciiMode, setAsciiMode] = useState(false);
 
   return (
     <Section
       title={`Conversation with ${convo_name} (${convo_job})`}
       buttons={
-        <>
-          <Button
-            icon="eye"
-            selected={asciiMode}
-            tooltip="ASCII Mode"
-            tooltipPosition="bottom-end"
-            onClick={() => setAsciiMode(!asciiMode)}
-          />
-          <Button
-            icon="reply"
-            tooltip="Reply"
-            tooltipPosition="bottom-end"
-            onClick={() => act('Message', { target: active_conversation })}
-          />
-          <Button.Confirm
-            icon="trash"
-            color="bad"
-            tooltip="Delete Conversation"
-            tooltipPosition="bottom-end"
-            onClick={() => act('Clear', { option: 'Convo' })}
-          />
-        </>
+        <Stack>
+          <Stack.Item>
+            <Button
+              icon="eye"
+              selected={asciiMode}
+              tooltip="ASCII Mode"
+              tooltipPosition="bottom-end"
+              onClick={() => setAsciiMode(!asciiMode)}
+            />
+          </Stack.Item>
+          <Stack.Item>
+            <Button
+              icon="reply"
+              tooltip="Reply"
+              tooltipPosition="bottom-end"
+              onClick={() => act('Message', { target: active_conversation })}
+            />
+          </Stack.Item>
+          <Stack.Item>
+            <Button.Confirm
+              icon="trash"
+              color="bad"
+              tooltip="Delete Conversation"
+              tooltipPosition="bottom-end"
+              onClick={() => act('Clear', { option: 'Convo' })}
+            />
+          </Stack.Item>
+        </Stack>
       }
     >
       <ScrollOnMount>

@@ -35,8 +35,8 @@
 	var/hungry = (500 - nutrition) / 5 //Fixed 500 here instead of our huge MAX_NUTRITION
 	if (hungry >= 70) . += hungry/50
 
-	if (feral >= 10) //crazy feral animals give less and less of a shit about pain and hunger as they get crazier
-		. = max(species.slowdown, species.slowdown+((.-species.slowdown)/(feral/10))) // As feral scales to damage, this amounts to an effective +1 slowdown cap
+	if (get_feralness() >= 10) //crazy feral animals give less and less of a shit about pain and hunger as they get crazier
+		. = max(species.slowdown, species.slowdown+((.-species.slowdown)/(get_feralness()/10))) // As feral scales to damage, this amounts to an effective +1 slowdown cap
 		if(shock_stage >= 10) . -= 1.5 //this gets a +3 later, feral critters take reduced penalty
 	if(riding_datum) //Bit of slowdown for taur rides if rider is bigger or fatter than mount.
 		var/datum/riding/R = riding_datum
@@ -131,11 +131,20 @@
 	if(embedded_flag)
 		handle_embedded_objects() //Moving with objects stuck in you can cause bad times.
 
+	if(pose && pose_move) //clear pose on movement if choosing to
+		pose = null
+		pose_move = FALSE
+		remove_pose_indicator()
+
 // This calculates the amount of slowdown to receive from items worn. This does NOT include species modifiers.
 // It is in a seperate place to avoid an infinite loop situation with dragging mobs dragging each other.
 // Also its nice to have these things seperated.
 
-/mob/living/carbon/human/proc/calculate_item_encumbrance()
+//Return FALSE for no encumberance
+/mob/proc/calculate_item_encumbrance()
+	return FALSE
+
+/mob/living/carbon/human/calculate_item_encumbrance()
 	/// We check for all the items the wearer has that cause slowdown (positive or negative)
 	/// We then multiply the postive ones by our species.item_slowdown_mod to slow us down more, while we leave negative ones untouched.
 	/// Heavy things in your hands are affected by this change, UNLESS the thing in your hand speeds you up, in which case it doesn't.
@@ -184,7 +193,7 @@
 	// Loop through some slots, and add up their slowdowns.
 	// Includes slots which can provide armor, the back slot, and suit storage.
 	for(var/obj/item/I in list(wear_suit, w_uniform, back, gloves, head, s_store))
-		if(istype(I,/obj/item/rig)) //CHOMPAdd
+		if(istype(I,/obj/item/rig))
 			for(var/obj/item/II in I.contents)
 				. += II.slowdown
 		. += I.slowdown
@@ -203,11 +212,12 @@
 
 	if(T.movement_cost && !flying) //If you are flying you are probably not affected by the terrain on the ground.
 		var/turf_move_cost = T.movement_cost
+		if(locate(/obj/structure/catwalk) in T) //catwalks prevent turfs from slowing your
+			return 0
 		if(istype(T, /turf/simulated/floor/water))
 			if(species.water_movement)
-				//turf_move_cost = CLAMP(turf_move_cost + species.water_movement, HUMAN_LOWEST_SLOWDOWN, 15) //ChompEDIT - all water is free movement for aquatics
-				turf_move_cost = 0 //ChompEDIT - all water is free movement for aquatics
-			if(istype(shoes, /obj/item/clothing/shoes))	//CHOMPEdit - Fixes runtime
+				turf_move_cost = CLAMP(turf_move_cost + species.water_movement, HUMAN_LOWEST_SLOWDOWN, 15)
+			if(istype(shoes, /obj/item/clothing/shoes))
 				var/obj/item/clothing/shoes/feet = shoes
 				if(istype(feet) && feet.water_speed)
 					turf_move_cost = CLAMP(turf_move_cost + feet.water_speed, HUMAN_LOWEST_SLOWDOWN, 15)
@@ -215,7 +225,7 @@
 		else if(istype(T, /turf/simulated/floor/outdoors/snow))
 			if(species.snow_movement)
 				turf_move_cost = CLAMP(turf_move_cost + species.snow_movement, HUMAN_LOWEST_SLOWDOWN, 15)
-			if(istype(shoes, /obj/item/clothing/shoes))	//CHOMPEdit - Fixes runtime
+			if(istype(shoes, /obj/item/clothing/shoes))
 				var/obj/item/clothing/shoes/feet = shoes
 				if(istype(feet) && feet.snow_speed)
 					turf_move_cost = CLAMP(turf_move_cost + feet.snow_speed, HUMAN_LOWEST_SLOWDOWN, 15)
@@ -236,20 +246,28 @@
 				if(direct & WH.wind_dir)
 					. = max(. - WH.wind_speed, -1) // Wind speedup is capped to prevent supersonic speeds from a storm.
 				// Against it.
-				else if(direct & reverse_dir[WH.wind_dir])
+				else if(direct & GLOB.reverse_dir[WH.wind_dir])
 					. += WH.wind_speed
 
 */
 #undef HUMAN_LOWEST_SLOWDOWN
 
+///Gets whatever jetpack we may have and returns it. Checks back -> rig -> suit storage -> suit
 /mob/living/carbon/human/get_jetpack()
 	if(back)
-		var/obj/item/rig/rig = get_rig()
 		if(istype(back, /obj/item/tank/jetpack))
 			return back
-		else if(istype(rig))
+		var/obj/item/rig/rig = get_rig()
+		if(istype(rig))
 			for(var/obj/item/rig_module/maneuvering_jets/module in rig.installed_modules)
 				return module.jets
+	if(s_store && istype(s_store, /obj/item/tank/jetpack))
+		return s_store
+	if(wear_suit && istype(wear_suit, /obj/item/clothing/suit/space/void))
+		var/obj/item/clothing/suit/space/void/v = wear_suit
+		if(v.tank && istype(v.tank, /obj/item/tank/jetpack))
+			return v.tank
+
 
 /mob/living/carbon/human/Process_Spacemove(var/check_drift = 0)
 	//Can we act?
@@ -274,38 +292,6 @@
 
 	return FALSE
 
-
-/* CHOMPedit: Nuking slipping.
-/mob/living/carbon/human/Process_Spaceslipping(var/prob_slip = 5)
-	//If knocked out we might just hit it and stop.  This makes it possible to get dead bodies and such.
-
-	if(species.flags & NO_SLIP)
-		return FALSE
-
-	if(species.can_space_freemove || species.can_zero_g_move)
-		return FALSE
-
-	var/obj/item/tank/jetpack/thrust = get_jetpack()
-	if(thrust?.can_thrust(0.01))
-		return FALSE
-
-	if(stat)
-		prob_slip = 0 // Changing this to zero to make it line up with the comment, and also, make more sense.
-
-	//Do we have magboots or such on if so no slip
-	if(istype(shoes, /obj/item/clothing/shoes/magboots) && (shoes.item_flags & NOSLIP))
-		prob_slip = 0
-
-	//Check hands and mod slip
-	if(!l_hand)	prob_slip -= 2
-	else if(l_hand.w_class <= 2)	prob_slip -= 1
-	if (!r_hand)	prob_slip -= 2
-	else if(r_hand.w_class <= 2)	prob_slip -= 1
-
-	prob_slip = round(prob_slip)
-	return(prob_slip)
-*/// CHOMPedit end.
-
 // Handle footstep sounds
 /mob/living/carbon/human/handle_footstep(var/turf/T)
 	if(shoes && loc == T && get_gravity(loc) && !flying)
@@ -316,5 +302,5 @@
 /mob/living/carbon/human/set_dir(var/new_dir)
 	. = ..()
 	if(. && (species.tail || tail_style))
-		update_tail_showing()
+		//update_tail_showing() this is already called by update_inv_wear_suit
 		update_inv_wear_suit()

@@ -216,6 +216,14 @@
 	..()
 	gear_tweaks += gear_tweak_free_color_choice
 
+/datum/gear/uniform/loincloth
+	display_name = "loincloth"
+	path = /obj/item/clothing/under/skirt/loincloth
+
+/datum/gear/uniform/loincloth/New()
+	..()
+	gear_tweaks += gear_tweak_free_color_choice
+
 /datum/gear/uniform/reddress
 	display_name = "red dress with belt"
 	path = /obj/item/clothing/under/dress/darkred
@@ -879,3 +887,9 @@ Talon jumpsuit
 /datum/gear/uniform/cswoopdress/New()
 	..()
 	gear_tweaks += gear_tweak_free_color_choice
+
+// waiter's outfit, this should probably be in a selector with all the other service uniforms.
+/datum/gear/uniform/waiter
+	display_name = "waiter's outfit"
+	description = "It's a very smart uniform with a special pocket for tip."
+	path = /obj/item/clothing/under/waiter

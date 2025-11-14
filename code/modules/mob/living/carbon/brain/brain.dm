@@ -12,6 +12,9 @@
 	can_pain_emote = FALSE // CHOMPEdit: Sanity/safety
 	low_priority = TRUE //CHOMPEdit
 
+	can_pain_emote = FALSE
+	low_priority = TRUE
+
 /mob/living/carbon/brain/Initialize(mapload)
 	. = ..()
 	var/datum/reagents/R = new/datum/reagents(1000)
@@ -27,7 +30,7 @@
 	qdel(dna)
 	return ..()
 
-/mob/living/carbon/brain/emp_act(severity) //Brains can't be EMP'd...
+/mob/living/carbon/brain/emp_act(severity, recursive) //Brains can't be EMP'd...
 	return
 
 /mob/living/carbon/brain/say_understands(var/other)//Goddamn is this hackish, but this say code is so odd

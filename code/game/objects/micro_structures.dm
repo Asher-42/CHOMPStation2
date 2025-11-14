@@ -1,4 +1,4 @@
-var/global/list/micro_tunnels = list()
+GLOBAL_LIST_EMPTY(micro_tunnels)
 
 /obj/structure/micro_tunnel
 	name = "mouse hole"
@@ -9,6 +9,7 @@ var/global/list/micro_tunnels = list()
 	anchored = TRUE
 	density = FALSE
 
+	var/random = FALSE //For random tummels- spits the micro out at a random location.
 	var/magic = FALSE	//For events and stuff, if true, this tunnel will show up in the list regardless of whether it's in valid range, of if you're in a tunnel with this var, all tunnels of the same faction will show up redardless of range
 	micro_target = TRUE
 
@@ -22,7 +23,7 @@ var/global/list/micro_tunnels = list()
 
 /obj/structure/micro_tunnel/Initialize(mapload)
 	. = ..()
-	micro_tunnels.Add(src)
+	GLOB.micro_tunnels.Add(src)
 	if(name == initial(name))
 		var/area/our_area = get_area(src)
 		name = "[our_area.name] [name]"
@@ -37,7 +38,7 @@ var/global/list/micro_tunnels = list()
 		thing.forceMove(get_turf(src.loc))
 		thing.cancel_camera()
 
-	micro_tunnels.Remove(src)
+	GLOB.micro_tunnels.Remove(src)
 
 	return ..()
 
@@ -67,7 +68,7 @@ var/global/list/micro_tunnels = list()
 	for(var/datum/planet/P in SSplanets.planets)
 		if(myturf.z in P.expected_z_levels)
 			planet = P
-	for(var/obj/structure/micro_tunnel/t in micro_tunnels)
+	for(var/obj/structure/micro_tunnel/t in GLOB.micro_tunnels)
 		if(t == src)
 			continue
 		if(magic || t.magic)
@@ -138,14 +139,14 @@ var/global/list/micro_tunnels = list()
 				if(!destinations.len)
 					to_chat(user, span_warning("There are no other tunnels connected to this one!"))
 					return
-				else if(destinations.len == 1)
+				else if(destinations.len == 1 || random)
 					choice = pick(destinations)
 				else
 					choice = tgui_input_list(user, "Where would you like to go?", "Pick a tunnel", destinations)
 				if(!choice)
 					return
 				to_chat(user,span_notice("You begin moving..."))
-				if(!do_after(user, 10 SECONDS, exclusive = TRUE))
+				if(!do_after(user, 10 SECONDS, target = src))
 					return
 				user.forceMove(choice)
 				user.cancel_camera()
@@ -179,7 +180,7 @@ var/global/list/micro_tunnels = list()
 
 	if(!can_enter(user))
 		user.visible_message(span_warning("\The [user] reaches into \the [src]. . ."),span_warning("You reach into \the [src]. . ."))
-		if(!do_after(user, 3 SECONDS, exclusive = TRUE))
+		if(!do_after(user, 3 SECONDS, target = src))
 			user.visible_message(span_notice("\The [user] pulls their hand out of \the [src]."),span_warning("You pull your hand out of \the [src]"))
 			return
 		if(!src.contents.len)
@@ -218,7 +219,7 @@ var/global/list/micro_tunnels = list()
 			return
 
 	user.visible_message(span_notice("\The [user] begins climbing into \the [src]!"))
-	if(!do_after(user, 10 SECONDS, exclusive = TRUE))
+	if(!do_after(user, 10 SECONDS, target = src))
 		to_chat(user, span_warning("You didn't go into \the [src]!"))
 		return
 
@@ -245,7 +246,7 @@ var/global/list/micro_tunnels = list()
 	var/mob/living/k = M
 
 	k.visible_message(span_notice("\The [k] begins climbing into \the [src]!"))
-	if(!do_after(k, 3 SECONDS, exclusive = TRUE))
+	if(!do_after(k, 3 SECONDS, target = src))
 		to_chat(k, span_warning("You didn't go into \the [src]!"))
 		return
 
@@ -278,9 +279,8 @@ var/global/list/micro_tunnels = list()
 /obj/structure/micro_tunnel/magic
 	magic = TRUE
 
-/obj
-	var/micro_accepted_scale = 0.5
-	var/micro_target = FALSE
+/obj/structure/micro_tunnel/random
+	random = TRUE
 
 /obj/Initialize(mapload)
 	. = ..()
@@ -341,7 +341,7 @@ var/global/list/micro_tunnels = list()
 				if(!choice)
 					return
 				to_chat(usr,span_notice("You begin moving..."))
-				if(!do_after(usr, 10 SECONDS, exclusive = TRUE))
+				if(!do_after(usr, 10 SECONDS, target = src))
 					return
 				if(QDELETED(src))
 					return
@@ -379,7 +379,7 @@ var/global/list/micro_tunnels = list()
 
 	if(!(usr.mob_size <= MOB_TINY || usr.get_effective_size(TRUE) <= micro_accepted_scale))
 		usr.visible_message(span_warning("\The [usr] reaches into \the [src]. . ."),span_warning("You reach into \the [src]. . ."))
-		if(!do_after(usr, 3 SECONDS, exclusive = TRUE))
+		if(!do_after(usr, 3 SECONDS, target = src))
 			usr.visible_message(span_notice("\The [usr] pulls their hand out of \the [src]."),span_warning("You pull your hand out of \the [src]"))
 			return
 
@@ -420,7 +420,7 @@ var/global/list/micro_tunnels = list()
 			return
 
 	usr.visible_message(span_notice("\The [usr] begins climbing into \the [src]!"))
-	if(!do_after(usr, 10 SECONDS, exclusive = TRUE))
+	if(!do_after(usr, 10 SECONDS, target = src))
 		to_chat(usr, span_warning("You didn't go into \the [src]!"))
 		return
 
@@ -448,7 +448,7 @@ var/global/list/micro_tunnels = list()
 	name = "mouse hole spawner"
 	icon = 'icons/obj/landmark_vr.dmi'
 	icon_state = "blue-x"
-	invisibility = 101
+	invisibility = INVISIBILITY_ABSTRACT
 
 	var/chance_to_spawn = 25
 
